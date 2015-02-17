@@ -1,26 +1,22 @@
 !argon gas in a box simulation, molecular dynamics.
 !compile with: gfortran argon-box.f90 $(pkg-config --cflags --libs plplotd-f95)
 
+!the cubic geometry sides of length = L
+!initial positions initialized according to fcc lattice structure	
+!number of fcc cells per cartesian dimension = Ncell, 
+!number of particles is N, (4 particles per cube)		
+
 program argon_box
 	use plplot
     implicit none
-
-	!the cubic geometry sides of length = L
-	!initial positions initialized according to fcc lattice structure	
-	!number of fcc cells per cartesian dimension = Ncell, 
-	!number of particles is N, (4 particles per cube)		
-	integer, parameter :: N_cell_dim = 6, N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = 1d0, T = 1, m = 1, s = 1, dt = 1d-9, t_stop = 1
+	
+	integer, parameter :: N_cell_dim = 3, N_cell = N_cell_dim**3, N_part = N_cell*4
+	real(8), parameter :: L_side = 1d0, T = 1000000000, m = 1, s = 1, dt = 1d-7, t_stop = 1
 	real(8), parameter :: PI = 4 * atan(1d0), Kb = 1 	!constants	
 	integer :: i,j,k,l,n !iteration variables
 	real(8):: xs(2) !two random numbers
-	real(8) :: time, r, F(3) 
-
-
-	
-	! particle system arrays
-	real(8), dimension(1:3, 1:N_part) :: pos, vel
-	
+	real(8) :: time, r, r_vec(3), F(3) 
+	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays	
 	
 	!initial positions of all particles according to an fcc lattice structure
 	print *, "initializing initial particle positions"
@@ -39,69 +35,71 @@ program argon_box
 	
 	
 	!initial particles velocities according to the maxwell distribution
+	
+	! in the maxwell boltzman distribution each velocity component is normally distributed:
+	! f(v) = sqrt(m/(2*PI*Kb*T)) * exp(-(v**2)/2 *m/(*Kb*T))
+	! sigma**2 = Kb*T/m, and zero mean
+	
 	print *, "initializing initial particle velocities"
 	call init_random_seed
 	do n = 1,N_part
 		do i = 1,3
-			! in the maxwell boltzman distribution each velocity component is normally distributed:
-			! f(v) = sqrt(m/(2*PI*Kb*T)) * exp(-(v**2)/2 *m/(*Kb*T))
-			! sigma**2 = Kb*T/m, and zero mean
 			CALL RANDOM_NUMBER(xs(1))
 			CALL RANDOM_NUMBER(xs(2))						
-			! how to incorporate the standard deviation?
 			vel(i,n) = sqrt(Kb*T/m) * box_muller(xs)
 		end do
-		print *,"particle:", n, "/",  N_part, "velocity:", VEL(:,n)
+!		print *,"particle:", n, "/",  N_part, "velocity:", VEL(:,n)
 	end do
 	
-
+	
 print *, "calculating time evolution"
+
+! linear aproximation: x = x + v*dt, dv= F/m*dt, read verlets paper to find out whether higher order terms are needed.
+! also the order in whidh dx and dv applied to the system might be significant.
+
+!time evolution for particles in lennard jones potential: U = 4(s/r)**12-(s/r)**6,
+!Fij = -du/dx = -du/dr*dr/dx = (48*s**12/r**13 - 6*s**6/r**7) * x/r, 
+!r = sqrt(x**2+y**2+z**2)	
+	
 time = 0d0
 call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
+
 do while (time < t_stop)
 	time = time + dt
 	call plot_points(pos)	
-	
-! linear aproximation: x = x + v*dt, dv= F/m*dt, read verlets paper to find out whether higher order terms are needed.
-! also the order in whidh dx and dv applied to the system might be significant.
-	
 	do n = 1,N_part			
-		pos(:,n) = pos(:,n) + vel(:,n)*dt	
-!NOT YET WORKING:
-		!implements periodic boundary conditions
-		do i = 1,3 
+		pos(:,n) = pos(:,n) + vel(:,n)*dt			
+		do i = 1,3 !implements periodic boundary conditions
 			if (pos(i,n) < 0d0) then 
-				pos(i,n) = pos(i,n) + floor(pos(i,n)/L_side)*L_side
+				pos(i,n) = pos(i,n) + L_side !floor(pos(i,n)/L_side)*L_side
 				print *, n, "particle crossed boundary at zero, in dimension", i
 			else if (pos(i,n) > L_side) then
-				pos(i,n) = pos(i,n) - floor((pos(i,n)-L_side)/L_side)*L_side
+				pos(i,n) = pos(i,n) - L_side !floor((pos(i,n)-L_side)/L_side)*L_side
 				print *, n, "particle crossed boundary at L, in dimension", i
 			end if
 		end do		
 !		print *, "particle:", n, "/",  N_part, "position:", pos(:,n)
-	end do
+	end do	
 	
-	
-	!time evolution for particles in lennard jones potential: U = 4(s/r)**12-(s/r)**6,
-	!Fij = -du/dx = -du/dr*dr/dx = (48*s**12/r**13 - 6*s**6/r**7) * x/r, 
-	!r = sqrt(x**2+y**2+z**2)	
-	
-!Not yet working
-!implement forces from mirror particles arising from periodic boundary conditions, and introduce a cutoff distance to avoid the need to calculate long range effects
 	print *, "calculating dv for t = ", time, "+ dt"
 	do n = 1,N_part	
 		F = 0
-		do i = 	1,N_part
-			if (n /= i) then
-				r = sqrt((pos(1,n)-pos(1,i))**2 + (pos(2,n)-pos(2,i))**2	+ (pos(3,n)-pos(3,i))**2)
-				F = F + &
-					(48*s**12/r**13 - 6*s**6/r**7)/r*(/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/)
-			end if
+		do i = 	1,N_part !integrate over all particles inside box except i = n					
+			do j = -1, 1 
+			do k = -1, 1 !periodic boundary condition for potential forces..
+			do l = -1, 1				
+				if (n/=i) then !(.not.(n=i .and. (/j,k,l/)=(/0,0,0/)))	
+					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
+					r = sqrt(DOT_PRODUCT(r_vec, r_vec))  
+					F = F + (48*s**12/r**14 - 6*s**6/r**8) * r_vec
+				end if		
+			end do 
+			end do 
+			end do		
 		end do
 		vel(:,n) = vel(:,n) + F/m*dt	
-		print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
+!		print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
 	end do
-	
 end do	
 
 call plot_end
