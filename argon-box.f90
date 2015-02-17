@@ -31,7 +31,7 @@ program argon_box
 				do l = 1,4
 					n = n + 1
 					pos(:,n) = L_side/N_cell_dim*((/ i-1, j-1, k-1 /) + fcc_cell(l))
-					print *, "particle:", n, "/",  N_part, "position:", pos(:,n)
+!					print *, "particle:", n, "/",  N_part, "position:", pos(:,n)
 				end do
 			end do
 		end do
@@ -46,11 +46,10 @@ program argon_box
 			! in the maxwell boltzman distribution each velocity component is normally distributed:
 			! f(v) = sqrt(m/(2*PI*Kb*T)) * exp(-(v**2)/2 *m/(*Kb*T))
 			! sigma**2 = Kb*T/m, and zero mean
-			! -> box-muller transform from uniform to normal distribution
 			CALL RANDOM_NUMBER(xs(1))
 			CALL RANDOM_NUMBER(xs(2))						
 			! how to incorporate the standard deviation?
-			vel(i,n) = sqrt(Kb*T/m) * normal_rnd(xs)
+			vel(i,n) = sqrt(Kb*T/m) * box_muller(xs)
 		end do
 		print *,"particle:", n, "/",  N_part, "velocity:", VEL(:,n)
 	end do
@@ -79,7 +78,7 @@ do while (time < t_stop)
 				print *, n, "particle crossed boundary at L, in dimension", i
 			end if
 		end do		
-		print *, "particle:", n, "/",  N_part, "position:", pos(:,n)
+!		print *, "particle:", n, "/",  N_part, "position:", pos(:,n)
 	end do
 	
 	
@@ -138,15 +137,6 @@ contains
 	  zs = sqrt(-2d0*log(xs(1)))*cos(2*pi*xs(2))
 	  !zs(2) = sqrt(-2d0*log(xs(1)))*sin(2*pi*xs(2))
 	end function box_muller
-	
-	function normal_rnd(xs) result(norm_rnd_variable)
-		!normal distribution
-		implicit none
-		real(8), intent(in) :: xs(2) 
-		real(8) :: norm_rnd_variable
-		
-		norm_rnd_variable = box_muller(xs)		
-	end function normal_rnd
 	
 	! copied from ICCP coding-notes
 	subroutine init_random_seed()
