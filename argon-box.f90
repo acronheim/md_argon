@@ -11,9 +11,10 @@ program argon_box
     implicit none
 	
 	integer, parameter :: N_cell_dim = 2, N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = 1d0, T = 90000000, m = 1d0, s = 1d0, e = 1d0
-	real(8), parameter :: r_cut = L_side, dt = 1d-7, t_stop = 1d0
-	real(8), parameter :: PI = 4 * atan(1d0), Kb = 1 	!constants	
+	real(8), parameter :: L_side = 1d0, T = 90000000, m = 1d0
+	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side, dt = 1d-7 ! lennard jones potential
+	real(8), parameter :: t_stop = 1d0
+	real(8), parameter :: Kb = 1 	!constants	
 	integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 	integer :: i,j,k,l,n, step!iteration variables
 	real(8):: xs(2) !two random numbers
