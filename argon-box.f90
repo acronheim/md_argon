@@ -11,13 +11,13 @@ program argon_box
     implicit none
 	
 	integer, parameter :: N_cell_dim = 2, N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = 1d0, T = 9000000, m = 1, s = 1, e = 1
-	real(8), parameter :: r_cut = L_side, dt = 1d-6, t_stop = 1
+	real(8), parameter :: L_side = 1d0, T = 90000000, m = 1d0, s = 1d0, e = 1d0
+	real(8), parameter :: r_cut = L_side, dt = 1d-7, t_stop = 1d0
 	real(8), parameter :: PI = 4 * atan(1d0), Kb = 1 	!constants	
-	integer, parameter :: N_avSteps = 10 ! #steps used for ensemble average
+	integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 	integer :: i,j,k,l,n, step!iteration variables
 	real(8):: xs(2) !two random numbers
-	real(8) :: time, r, r_vec(3), F(3), U(N_part), v_2(N_part), H, Ekin, P, F_R(N_avSteps), Temp
+	real(8) :: time, r, r_vec(3), F(3), dF(3), U(N_part), v_2(N_part), H, Ekin, P, F_R(N_avSteps), Temp
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays	
 	
 	
@@ -68,6 +68,7 @@ do while (time < t_stop)
 	step = step + 1	
 	
 	F_R(1:(N_avSteps-1)) = F_R(2:N_avSteps) !calculation of ensamble average as time average in virial theorem, pressure calculation
+	F_R(N_avSteps) = 0
 	
 		! Force calculation	
 		do n = 1,N_part 
@@ -81,8 +82,11 @@ do while (time < t_stop)
 					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
 					r = sqrt(dot_product(r_vec, r_vec))  
 					if (r<r_cut) then
-						F = F + e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec		
+						! uitwerken op papier virial theorem.. potentiaal kracht in termen van elkaar..
+						dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
+						F = F + dF 		
 						U(n) = U(n) + 5d-1*(4*e*(s/r)**12-(s/r)**6)
+						F_R(N_avSteps) = F_R(N_avSteps) + dot_product(r_vec, dF)	 !ensemble average
 					end if
 				end if		
 			end do 
@@ -91,7 +95,6 @@ do while (time < t_stop)
 		end do			
 		vel(:,n) = vel(:,n) + F/m*dt	
 		v_2(n) = dot_product(vel(:,n),vel(:,n))
-		F_R(N_avSteps) = F_R(N_avSteps) + dot_product(pos(:,n), F)	 !ensemble average
 !		print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
 	end do
 	
@@ -111,7 +114,8 @@ do while (time < t_stop)
 	Ekin = sum(m/2*V_2)
 	H = sum(U) + Ekin
 	Temp = 2*Kb/3*Ekin/N_part
-	P = N_part/(L_side**3)*Kb*T*(1 + 1/(3*Kb*T*N_part)* sum(F_R)/N_avSteps)
+	P = N_part/(L_side**3)*Kb*T*(1 + 1/(6*Kb*T*N_part)* sum(F_R)/N_avSteps) 	! + correction cuttoff,.
+
 	
 	print *, step, "t = ", time, "H =", H,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
 		
