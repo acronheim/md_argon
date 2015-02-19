@@ -15,9 +15,12 @@ program argon_box
 	use plplot
     implicit none
 	
-	integer, parameter :: N_cell_dim = 2, N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = 1d0, T_initial = 90000, m = 1d0
-	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side, dt = 1d-6 ! lennard jones potential
+	integer, parameter :: N_cell_dim = 2
+	real(8), parameter :: dt = 1d-6, T_initial = 9000000, rho = 1d-40
+	
+	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
+	real(8), parameter :: L_side = (N_part/rho)**(1/3), m = 1d0
+	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side ! lennard jones potential
 	real(8), parameter :: t_stop = 1d0
 	real(8), parameter :: Kb = 1 	!constants	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
@@ -33,6 +36,7 @@ program argon_box
 	time = 0d0
 	step = 0
 	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
+	
 	do while (time < t_stop)
 		call plot_points(pos)
 		time = time + dt	
@@ -40,9 +44,9 @@ program argon_box
 		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel)
 		call new_pos(N_part, L_side, vel, pos)
 		print *, step, "t = ", time, "H =", H,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
-		call rescale_vel(T_initial, Temp, dt, vel)
+		!call rescale_vel(T_initial, Temp, dt, vel)
 	end do	
-
+	
 	call plot_end
 
 contains
@@ -56,8 +60,8 @@ contains
 		real(8), intent(in), dimension(1:3, 1:N_part) :: pos
 		integer :: i,j,k,l,n		
 		real(8), intent(out) :: tot_energy, Temperature, Pressure
-		real(8) :: v_2(N_part), F(3), dF(3), r, r_vec(3), Sum_Fij_times_Rij, kin_energy, pot_energy
-		Sum_Fij_times_Rij = 0
+		real(8) :: v_2(N_part), F(3), dF(3), r, r_vec(3), virial, kin_energy, pot_energy
+		virial = 0
 		pot_energy = 0 !potential		
 		do n = 1,N_part 	
 			F = 0
@@ -72,7 +76,7 @@ contains
 							dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
 							F = F + dF 		
 							pot_energy = pot_energy + 5d-1*4*e*((s/r)**12-(s/r)**6)
-							Sum_Fij_times_Rij =  Sum_Fij_times_Rij + dot_product(r_vec, dF)	 
+							virial =  virial + dot_product(r_vec, dF)	 
 						end if
 					end if		
 				end do 
@@ -86,14 +90,14 @@ contains
 		kin_energy = sum(m/2*V_2)
 		tot_energy = pot_energy + kin_energy
 		Temperature = 2*kin_energy/(3*N_part*Kb)
-		Pressure = N_part/(L_side**3)*Kb*Temperature*(1 + 1/(6*Kb*Temperature*N_part)* Sum_Fij_times_Rij) ! + correction cuttoff,.		
+		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff,.		
 	end subroutine
 
 	subroutine rescale_vel(T_intended, T_actual, time_step, Vel)
 		!rescale velocities in order to keep temperature constant
 		real(8), intent(in) :: T_intended, T_actual, time_step
 		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
-		real(8), parameter :: tau = 25d-3
+		real(8), parameter :: tau = 1d-3
 		real(8) :: scaling_factor
 		! Berendsen thermostat
 		scaling_factor = sqrt(1 + time_step/tau*(T_intended/T_actual -1))
