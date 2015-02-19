@@ -1,3 +1,4 @@
+<<<<<<< Local Changes
 !argon gas in a box simulation, molecular dynamics.
 !compile with: gfortran argon-box.f90 $(pkg-config --cflags --libs plplotd-f95)
 
@@ -286,4 +287,3 @@ contains
 
 
 end program
-
