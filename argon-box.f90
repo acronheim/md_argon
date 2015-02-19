@@ -44,10 +44,12 @@ do while (time < t_stop)
 	
 	F_R(1:(N_avSteps-1)) = F_R(2:N_avSteps) !calculation of ensamble average as time average in virial theorem, pressure calculation
 	F_R(N_avSteps) = 0
+	
+	U = 0 !potential
 		
 	! Force calculation	
 	do n = 1,N_part 
-		!U(n) = 0 !potential
+		
 		F = 0
 		do i = 	1,N_part !integrate over all particles inside box except i = n					
 			do j = -1, 1 
@@ -60,7 +62,7 @@ do while (time < t_stop)
 						! uitwerken op papier virial theorem.. potentiaal kracht in termen van elkaar..
 						dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
 						F = F + dF 		
-						!U(n) = U(n) + 5d-1*(4*e*(s/r)**12-(s/r)**6)
+						U = U + 5d-1*(4*e*(s/r)**12-(s/r)**6)
 						F_R(N_avSteps) = F_R(N_avSteps) + dot_product(r_vec, dF)	 !ensemble average
 					end if
 				end if		
@@ -76,7 +78,7 @@ do while (time < t_stop)
 	call new_pos(N_part, L_side, vel, pos)
 	
 	Ekin = sum(m/2*V_2)
-	U = pot_energy(pos, N_part, L_side, r_cut)
+	! U = pot_energy(pos, N_part, L_side, r_cut)
 	H = U + Ekin
 	Temp = 2*Kb/3*Ekin/N_part
 	P = N_part/(L_side**3)*Kb*T*(1 + 1/(6*Kb*T*N_part)* sum(F_R)/N_avSteps) 	! + correction cuttoff,.
