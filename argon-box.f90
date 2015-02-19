@@ -1,4 +1,3 @@
-<<<<<<< Local Changes
 !argon gas in a box simulation, molecular dynamics.
 !compile with: gfortran argon-box.f90 $(pkg-config --cflags --libs plplotd-f95)
 
@@ -17,51 +16,59 @@ program argon_box
     implicit none
 	
 	integer, parameter :: N_cell_dim = 6
-	real(8), parameter :: dt = 0.004_8, T_initial = 9d-1, rho = 0.85_8
+	real(8), parameter :: dt = 0.004_8, T_initial = 9d-1, rho = 0.85_8, t_stop = 1d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3), m = 1d0
+	
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side ! lennard jones potential
-	real(8), parameter :: t_stop = 1d0
-	real(8), parameter :: Kb = 1d0 	!constants	
+	real(8), parameter :: Kb = 1d0 	!Boltzman constant
+	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 	integer :: i,j,k,l,n, step !iteration variables	
-	real(8) :: time, U, H, P, Temp
-	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays		
+	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
+	real(8) :: time, kin_energy, pot_energy, virial
+	real(8) :: Pressure, Temperature, tot_energy
+	
+	
 	
 	call cubic_fcc_lattice(N_cell_dim, L_side, pos)
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, vel)
 
-	print *, "calculating time evolution"
 	time = 0d0
 	step = 0
-	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
-	
+	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 	
 	do while (time < t_stop)
-		call plot_points(pos)
 		time = time + dt	
 		step = step + 1	
-		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel, step)
+		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
 		call new_pos(N_part, L_side, vel, pos)
-		print *, step,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
 		!call rescale_vel(T_initial, Temp, dt, vel)
+				
+		
+		tot_energy = pot_energy + kin_energy
+		Temperature = 2*kin_energy/(3*N_part*Kb)		
+		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
+		
+		call plot_points(pos)	
+		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
 	end do	
 	
 	call plot_end
 
 contains
 	
-	subroutine calc_dynamics(N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, Temperature, Pressure, tot_energy, vel, cnt)
-		! Force calculation	
-		integer, intent(in) :: N_part, cnt
+	subroutine calc_dynamics(N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
+		integer, intent(in) :: N_part
 		real(8), intent(in) :: e, s, r_cut !Lennard Jones
 		real(8), intent(in) :: m, time_step, L_side, Kb
 		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
 		real(8), intent(in), dimension(1:3, 1:N_part) :: pos
 		integer :: i,j,k,l,n		
-		real(8), intent(out) :: tot_energy, Temperature, Pressure
-		real(8) :: v_2(N_part), F(3), dF(3), r, r_vec(3), virial, kin_energy, pot_energy
+		real(8), intent(out) :: kin_energy, pot_energy, virial
+		real(8) :: v_2(N_part), F(3), dF(3), r, r_vec(3)
 		virial = 0
 		pot_energy = 0 !potential		
 		do n = 1,N_part 	
@@ -88,11 +95,7 @@ contains
 			v_2(n) = dot_product(vel(:,n),vel(:,n))
 			!print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
 		end do		
-		kin_energy = sum(m/2*V_2)
-		tot_energy = pot_energy + kin_energy
-		Temperature = 2*kin_energy/(3*N_part*Kb)
-		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, cnt)
-		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff,.		
+		kin_energy = sum(m/2*V_2)	
 	end subroutine
 
 	subroutine rescale_vel(T_intended, T_actual, time_step, Vel)
