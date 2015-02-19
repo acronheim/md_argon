@@ -4,160 +4,101 @@
 !the cubic geometry sides of length = L
 !initial positions initialized according to fcc lattice structure	
 !number of fcc cells per cartesian dimension = Ncell, 
-!number of particles is N, (4 particles per cube)		
+!number of particles is N, (4 particles per cube)	
+
+!linear aproximation: x = x + v*dt, dv= F/m*dt: semi iplicit euler method
+!time evolution for particles in lennard jones potential: U = 4*e*((s/r)**12-(s/r)**6),
+!Fij = -du/dx = -du/dr*dr/dx = e*(48*s**12/r**13 - 6*s**6/r**7) * x/r, 
+!r = sqrt(x**2+y**2+z**2)		
 
 program argon_box
 	use plplot
     implicit none
 	
 	integer, parameter :: N_cell_dim = 2, N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = 1d0, T = 9000000, m = 1d0
-	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side, dt = 1d-7 ! lennard jones potential
+	real(8), parameter :: L_side = 1d0, T_initial = 90000, m = 1d0
+	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side, dt = 1d-6 ! lennard jones potential
 	real(8), parameter :: t_stop = 1d0
 	real(8), parameter :: Kb = 1 	!constants	
-	integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-	integer :: i,j,k,l,n, step!iteration variables
-	
-	real(8) :: time, r, r_vec(3), F(3), dF(3), U, v_2(N_part), H, Ekin, P, F_R(N_avSteps), Temp
-	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays	
-	
+	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
+	integer :: i,j,k,l,n, step!iteration variables	
+	real(8) :: time, U, H, P, Temp
+	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays		
 	
 	call cubic_fcc_lattice(N_cell_dim, pos)
 	call init_random_seed
-	call init_vel(T, Kb, m, vel)
+	call init_vel(T_initial, Kb, m, vel)
 
-! 
-! linear aproximation: x = x + v*dt, dv= F/m*dt: semi iplicit euler method
-!time evolution for particles in lennard jones potential: U = 4*e*(s/r)**12-(s/r)**6,
-!Fij = -du/dx = -du/dr*dr/dx = e*(48*s**12/r**13 - 6*s**6/r**7) * x/r, 
-!r = sqrt(x**2+y**2+z**2)	
-print *, "calculating time evolution"
-time = 0d0
-step = 0
-call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
+	print *, "calculating time evolution"
+	time = 0d0
+	step = 0
+	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
+	do while (time < t_stop)
+		call plot_points(pos)
+		time = time + dt	
+		step = step + 1	
+		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel)
+		call new_pos(N_part, L_side, vel, pos)
+		print *, step, "t = ", time, "H =", H,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
+		call rescale_vel(T_initial, Temp, dt, vel)
+	end do	
 
-!Time integration
-do while (time < t_stop)
-	call plot_points(pos)
-	time = time + dt	
-	step = step + 1	
-	
-	F_R(1:(N_avSteps-1)) = F_R(2:N_avSteps) !calculation of ensamble average as time average in virial theorem, pressure calculation
-	F_R(N_avSteps) = 0
-	
-	U = 0 !potential
-		
-	! Force calculation	
-	do n = 1,N_part 
-		
-		F = 0
-		do i = 	1,N_part !integrate over all particles inside box except i = n					
-			do j = -1, 1 
-			do k = -1, 1 !periodic boundary condition for potential forces..
-			do l = -1, 1				
-				if (n/=i)then !(.not.(n==i .and. ((/j,k,l/) == (/0,0,0/))))	
-					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
-					r = sqrt(dot_product(r_vec, r_vec))  
-					if (r<r_cut) then
-						! uitwerken op papier virial theorem.. potentiaal kracht in termen van elkaar..
-						dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
-						F = F + dF 		
-						U = U + 5d-1*(4*e*(s/r)**12-(s/r)**6)
-						F_R(N_avSteps) = F_R(N_avSteps) + dot_product(r_vec, dF)	 !ensemble average
-					end if
-				end if		
-			end do 
-			end do 
-			end do
-		end do			
-		vel(:,n) = vel(:,n) + F/m*dt	
-		v_2(n) = dot_product(vel(:,n),vel(:,n))
-!		print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
-	end do
-
-	call new_pos(N_part, L_side, vel, pos)
-	
-	Ekin = sum(m/2*V_2)
-	! U = pot_energy(pos, N_part, L_side, r_cut)
-	H = U + Ekin
-	Temp = 2*Kb/3*Ekin/N_part
-	P = N_part/(L_side**3)*Kb*T*(1 + 1/(6*Kb*T*N_part)* sum(F_R)/N_avSteps) 	! + correction cuttoff,.
-
-	call rescale_vel(T, Temp, vel)
-	
-	print *, step, "t = ", time, "H =", H,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
-		
-end do	
-
-call plot_end
+	call plot_end
 
 contains
 	
-!	subroutine calc_dynamics(N_part, m, e, s, r_cut, pos, Force)
-!		integer, intent(in) :: N_part
-!		real(8), intent(in) :: e = 1, s = 1, r_cut !Lennard Jones
-!		real(8), intent(in) :: m
-!		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
-!		real(8), intent(in), dimension(1:3, 1:N_part) :: pos
-!		integer :: i,j,k,l,n		
-!		do n = 1,N_part 
-!			F = 0
-!			do i = 	1,N_part !integrate over all particles inside box except i = n					
-!				do j = -1, 1 
-!				do k = -1, 1 !periodic boundary condition for potential forces..
-!				do l = -1, 1				
-!					if (n/=i)then !(.not.(n=i .and. (/j,k,l/)=(/0,0,0/)))	
-!						r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
-!						r = sqrt(dot_product(r_vec, r_vec))  
-!						if (r<r_cut) then
-!							F = F + e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
-!						end if
-!					end if		
-!				end do 
-!				end do 
-!				end do
-!			end do			
-!		end do
-!	end subroutine	
-	
-	subroutine rescale_vel(T_intended, T_actual, Vel)
-		!rescale velocities in order to keep temperature constant
-		real(8), intent(in) :: T_intended, T_actual
+	subroutine calc_dynamics(N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, Temperature, Pressure, tot_energy, vel)
+		! Force calculation	
+		integer, intent(in) :: N_part
+		real(8), intent(in) :: e, s, r_cut !Lennard Jones
+		real(8), intent(in) :: m, time_step, L_side, Kb
 		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
-		real(8) :: scaling_factor = 1d-2
-		if (T_actual < T_intended) then
-			vel = (1d0+scaling_factor)*vel
-		else if (T_actual > T_intended) then
-			vel = (1d0-scaling_factor)*vel
-		end if
+		real(8), intent(in), dimension(1:3, 1:N_part) :: pos
+		integer :: i,j,k,l,n		
+		real(8), intent(out) :: tot_energy, Temperature, Pressure
+		real(8) :: v_2(N_part), F(3), dF(3), r, r_vec(3), Sum_Fij_times_Rij, kin_energy, pot_energy
+		Sum_Fij_times_Rij = 0
+		pot_energy = 0 !potential		
+		do n = 1,N_part 	
+			F = 0
+			do i = 	1,N_part !integrate over all particles inside box except i = n					
+				do j = -1, 1 
+				do k = -1, 1 !periodic boundary condition for potential forces..
+				do l = -1, 1				
+					if (n/=i) then !(.not.(n==i .and. ((/j,k,l/) == (/0,0,0/)))) then 
+						r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
+						r = sqrt(dot_product(r_vec, r_vec))  
+						if (r<r_cut) then
+							dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
+							F = F + dF 		
+							pot_energy = pot_energy + 5d-1*4*e*((s/r)**12-(s/r)**6)
+							Sum_Fij_times_Rij =  Sum_Fij_times_Rij + dot_product(r_vec, dF)	 
+						end if
+					end if		
+				end do 
+				end do 
+				end do
+			end do			
+			vel(:,n) = vel(:,n) + F/m*time_step	
+			v_2(n) = dot_product(vel(:,n),vel(:,n))
+			!print *,"particle:", n, "/",  N_part, "velocity:", (VEL(i,n), i=1,3)
+		end do		
+		kin_energy = sum(m/2*V_2)
+		tot_energy = pot_energy + kin_energy
+		Temperature = 2*kin_energy/(3*N_part*Kb)
+		Pressure = N_part/(L_side**3)*Kb*Temperature*(1 + 1/(6*Kb*Temperature*N_part)* Sum_Fij_times_Rij) ! + correction cuttoff,.		
 	end subroutine
-	
-	function pot_energy(pos, N_part, L_side, r_cut) result(u)
-	integer :: i,j,k,l,n
-	integer, intent(in) :: N_part
-	real(8), intent(in) :: L_side, r_cut
-	real(8), intent(in), dimension(1:3, 1:N_part) :: pos
-	real(8) :: r, r_vec(3), U
 
-	U = 0 
-	do n = 1,N_part 
-		do i = 	1,N_part !integrate over all particles inside box except i = n	
-			do j = -1, 1 
-			do k = -1, 1 !periodic boundary condition for potential forces..
-			do l = -1, 1				
-				if (n/=i)then !(.not.(n==i .and. ((/j,k,l/) == (/0,0,0/))))	
-					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
-					r = sqrt(dot_product(r_vec, r_vec))  
-					if (r<r_cut) then
-						U = U + 5d-1*(4*e*(s/r)**12-(s/r)**6)
-					end if
-				end if		
-			end do 
-			end do 
-			end do
-		end do
-	end do					
-	end function
+	subroutine rescale_vel(T_intended, T_actual, time_step, Vel)
+		!rescale velocities in order to keep temperature constant
+		real(8), intent(in) :: T_intended, T_actual, time_step
+		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
+		real(8), parameter :: tau = 25d-3
+		real(8) :: scaling_factor
+		! Berendsen thermostat
+		scaling_factor = sqrt(1 + time_step/tau*(T_intended/T_actual -1))
+		vel = scaling_factor*vel
+	end subroutine
 	
 	subroutine new_pos(N_part, L_side, vel, pos)
 		! Postion calculation
