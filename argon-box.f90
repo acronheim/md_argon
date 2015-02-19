@@ -24,7 +24,7 @@ program argon_box
 	real(8), parameter :: t_stop = 1d0
 	real(8), parameter :: Kb = 1 	!constants	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-	integer :: i,j,k,l,n, step!iteration variables	
+	integer :: i,j,k,l,n, step,cnt !iteration variables	
 	real(8) :: time, U, H, P, Temp
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays		
 	
@@ -35,25 +35,27 @@ program argon_box
 	print *, "calculating time evolution"
 	time = 0d0
 	step = 0
+	cnt = 0
 	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
 	
 	do while (time < t_stop)
 		call plot_points(pos)
 		time = time + dt	
 		step = step + 1	
-		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel)
+		cnt = cnt + 1	
+		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel, cnt)
 		call new_pos(N_part, L_side, vel, pos)
-		print *, step, "t = ", time, "H =", H,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
-		!call rescale_vel(T_initial, Temp, dt, vel)
+		print *, step,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
+		call rescale_vel(T_initial, Temp, dt, vel)
 	end do	
 	
 	call plot_end
 
 contains
 	
-	subroutine calc_dynamics(N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, Temperature, Pressure, tot_energy, vel)
+	subroutine calc_dynamics(N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, Temperature, Pressure, tot_energy, vel, cnt)
 		! Force calculation	
-		integer, intent(in) :: N_part
+		integer, intent(in) :: N_part, cnt
 		real(8), intent(in) :: e, s, r_cut !Lennard Jones
 		real(8), intent(in) :: m, time_step, L_side, Kb
 		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
@@ -89,6 +91,7 @@ contains
 		end do		
 		kin_energy = sum(m/2*V_2)
 		tot_energy = pot_energy + kin_energy
+		call write_energy_file(tot_energy, kin_energy, pot_energy, cnt)
 		Temperature = 2*kin_energy/(3*N_part*Kb)
 		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff,.		
 	end subroutine
@@ -267,6 +270,21 @@ contains
       call plpoin3(xyz(1, :), xyz(2, :), xyz(3, :), 4)
       call plflush()
     end subroutine 
+
+	subroutine write_energy_file(H, kin_energy, pot_energy,cnt)
+
+		real(8), intent(in) :: H, kin_energy, pot_energy
+		integer, intent(in) :: cnt
+
+			
+
+		open (unit=1,file="energy_matrix.dat",action="write")
+  	
+		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy
+  		
+
+	end subroutine
+
 
 end program
 
