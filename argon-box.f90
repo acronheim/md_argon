@@ -18,7 +18,7 @@ program argon_box
 	integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 	integer :: i,j,k,l,n, step!iteration variables
 	
-	real(8) :: time, r, r_vec(3), F(3), dF(3), U(N_part), v_2(N_part), H, Ekin, P, F_R(N_avSteps), Temp
+	real(8) :: time, r, r_vec(3), F(3), dF(3), U, v_2(N_part), H, Ekin, P, F_R(N_avSteps), Temp
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays	
 	
 	
@@ -26,8 +26,8 @@ program argon_box
 	call init_random_seed
 	call init_vel(T, Kb, m, vel)
 
-! linear aproximation: x = x + v*dt, dv= F/m*dt, read verlets paper to find out whether higher order terms are needed.
-! also the order in whidh dx and dv applied to the system might be significant.
+! 
+! linear aproximation: x = x + v*dt, dv= F/m*dt: semi iplicit euler method
 !time evolution for particles in lennard jones potential: U = 4*e*(s/r)**12-(s/r)**6,
 !Fij = -du/dx = -du/dr*dr/dx = e*(48*s**12/r**13 - 6*s**6/r**7) * x/r, 
 !r = sqrt(x**2+y**2+z**2)	
@@ -47,20 +47,20 @@ do while (time < t_stop)
 		
 	! Force calculation	
 	do n = 1,N_part 
-		U(n) = 0 !potential
+		!U(n) = 0 !potential
 		F = 0
 		do i = 	1,N_part !integrate over all particles inside box except i = n					
 			do j = -1, 1 
 			do k = -1, 1 !periodic boundary condition for potential forces..
 			do l = -1, 1				
-				if (n/=i)then !(.not.(n=i .and. (/j,k,l/)=(/0,0,0/)))	
+				if (n/=i)then !(.not.(n==i .and. ((/j,k,l/) == (/0,0,0/))))	
 					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
 					r = sqrt(dot_product(r_vec, r_vec))  
 					if (r<r_cut) then
 						! uitwerken op papier virial theorem.. potentiaal kracht in termen van elkaar..
 						dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
 						F = F + dF 		
-						U(n) = U(n) + 5d-1*(4*e*(s/r)**12-(s/r)**6)
+						!U(n) = U(n) + 5d-1*(4*e*(s/r)**12-(s/r)**6)
 						F_R(N_avSteps) = F_R(N_avSteps) + dot_product(r_vec, dF)	 !ensemble average
 					end if
 				end if		
@@ -76,7 +76,8 @@ do while (time < t_stop)
 	call new_pos(N_part, L_side, vel, pos)
 	
 	Ekin = sum(m/2*V_2)
-	H = sum(U) + Ekin
+	U = pot_energy(pos, N_part, L_side, r_cut)
+	H = U + Ekin
 	Temp = 2*Kb/3*Ekin/N_part
 	P = N_part/(L_side**3)*Kb*T*(1 + 1/(6*Kb*T*N_part)* sum(F_R)/N_avSteps) 	! + correction cuttoff,.
 
@@ -128,6 +129,33 @@ contains
 			vel = (1d0-scaling_factor)*vel
 		end if
 	end subroutine
+	
+	function pot_energy(pos, N_part, L_side, r_cut) result(u)
+	integer :: i,j,k,l,n
+	integer, intent(in) :: N_part
+	real(8), intent(in) :: L_side, r_cut
+	real(8), intent(in), dimension(1:3, 1:N_part) :: pos
+	real(8) :: r, r_vec(3), U
+
+	U = 0 
+	do n = 1,N_part 
+		do i = 	1,N_part !integrate over all particles inside box except i = n	
+			do j = -1, 1 
+			do k = -1, 1 !periodic boundary condition for potential forces..
+			do l = -1, 1				
+				if (n/=i)then !(.not.(n==i .and. ((/j,k,l/) == (/0,0,0/))))	
+					r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
+					r = sqrt(dot_product(r_vec, r_vec))  
+					if (r<r_cut) then
+						U = U + 5d-1*(4*e*(s/r)**12-(s/r)**6)
+					end if
+				end if		
+			end do 
+			end do 
+			end do
+		end do
+	end do					
+	end function
 	
 	subroutine new_pos(N_part, L_side, vel, pos)
 		! Postion calculation
