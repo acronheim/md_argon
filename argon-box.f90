@@ -15,38 +15,36 @@ program argon_box
 	use plplot
     implicit none
 	
-	integer, parameter :: N_cell_dim = 2
-	real(8), parameter :: dt = 1d-6, T_initial = 9000000, rho = 1d-40
+	integer, parameter :: N_cell_dim = 6
+	real(8), parameter :: dt = 0.004_8, T_initial = 9d-1, rho = 0.85_8
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = (N_part/rho)**(1/3), m = 1d0
+	real(8), parameter :: L_side = (N_part/rho)**(1._8/3), m = 1d0
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side ! lennard jones potential
 	real(8), parameter :: t_stop = 1d0
-	real(8), parameter :: Kb = 1 	!constants	
+	real(8), parameter :: Kb = 1d0 	!constants	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-	integer :: i,j,k,l,n, step,cnt !iteration variables	
+	integer :: i,j,k,l,n, step !iteration variables	
 	real(8) :: time, U, H, P, Temp
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	! particle system arrays		
 	
-	call cubic_fcc_lattice(N_cell_dim, pos)
+	call cubic_fcc_lattice(N_cell_dim, L_side, pos)
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, vel)
 
 	print *, "calculating time evolution"
 	time = 0d0
 	step = 0
-	cnt = 0
 	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 
 	
 	do while (time < t_stop)
 		call plot_points(pos)
 		time = time + dt	
 		step = step + 1	
-		cnt = cnt + 1	
-		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel, cnt)
+		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, Temp, P, H, vel, step)
 		call new_pos(N_part, L_side, vel, pos)
 		print *, step,  "T =", Temp, "P =", P,  "vel1 =", vel(1,1), "pos1 =", pos(1,1)	
-		call rescale_vel(T_initial, Temp, dt, vel)
+		!call rescale_vel(T_initial, Temp, dt, vel)
 	end do	
 	
 	call plot_end
@@ -75,7 +73,7 @@ contains
 						r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
 						r = sqrt(dot_product(r_vec, r_vec))  
 						if (r<r_cut) then
-							dF = e*(48*s**12/r**14 - 6*s**6/r**8) * r_vec
+							dF = e*(48*s**12/r**14 - 24*s**6/r**8) * r_vec
 							F = F + dF 		
 							pot_energy = pot_energy + 5d-1*4*e*((s/r)**12-(s/r)**6)
 							virial =  virial + dot_product(r_vec, dF)	 
@@ -91,8 +89,8 @@ contains
 		end do		
 		kin_energy = sum(m/2*V_2)
 		tot_energy = pot_energy + kin_energy
-		call write_energy_file(tot_energy, kin_energy, pot_energy, cnt)
 		Temperature = 2*kin_energy/(3*N_part*Kb)
+		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, cnt)
 		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff,.		
 	end subroutine
 
@@ -146,10 +144,11 @@ contains
 	!	end do		
 	end function fcc_cell
 	
-	subroutine cubic_fcc_lattice(N_cell_dim, pos)	
+	subroutine cubic_fcc_lattice(N_cell_dim, L_side, pos)	
 		!initial positions of all particles according to an fcc lattice structure
 		integer :: i,j,k,l,n
 		integer, intent(in) :: N_cell_dim
+		real(8), intent(in) :: L_side
 		real(8), intent(out), dimension(1:3, 1:N_part) :: pos
 		print *, "initializing initial particle positions"
 		n = 0
@@ -271,16 +270,16 @@ contains
       call plflush()
     end subroutine 
 
-	subroutine write_energy_file(H, kin_energy, pot_energy,cnt)
+	subroutine write_energy_file(H, kin_energy, pot_energy, T, cnt)
 
-		real(8), intent(in) :: H, kin_energy, pot_energy
+		real(8), intent(in) :: H, kin_energy, T, pot_energy
 		integer, intent(in) :: cnt
 
 			
 
 		open (unit=1,file="energy_matrix.dat",action="write")
   	
-		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy
+		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy, T
   		
 
 	end subroutine
