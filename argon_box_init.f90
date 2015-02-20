@@ -59,14 +59,17 @@ contains
 		real(8), parameter :: pi = 4*atan(1d0)
 		real(8) :: xs(2) !two random numbers
 		integer :: n, i
-		!print *, "initializing initial particle velocities"
+		
 		do n = 1,N_part
 			do i = 1,3
 				CALL RANDOM_NUMBER(xs(1))
 				CALL RANDOM_NUMBER(xs(2))						
 				vel(i,n) = sqrt(Kb*T/m) * sqrt(-2d0*log(xs(1)))*cos(2*pi*xs(2)) !sigma * box_muller
 			end do
-			!		print *,"particle:", n, "/",  N_part, "velocity:", VEL(:,n)
+		end do
+		!Set center of mass velocity to zero
+		do i = 1,3 
+			vel(i,:) = vel(i,:) - sum(vel(i,:))/N_part
 		end do
 	end subroutine
 
