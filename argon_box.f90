@@ -17,13 +17,13 @@ program argon_box
 	use md_plot
 	implicit none
 	
-	integer, parameter :: N_cell_dim = 3
+	integer, parameter :: N_cell_dim = 4
 	real(8), parameter :: dt = 0.004_8, T_initial = 9d-1, rho = 0.85_8, t_stop = 1d2
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3), m = 1d0
 	
-	real(8), parameter :: s = 1d0, e = 1d0, r_cut = L_side ! lennard jones potential
+	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
 	real(8), parameter :: Kb = 1d0 	!Boltzman constant
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
@@ -31,6 +31,7 @@ program argon_box
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
 	real(8) :: time, kin_energy, pot_energy, virial
 	real(8) :: Pressure, Temperature, tot_energy
+
 	
 	
 	
@@ -44,12 +45,15 @@ program argon_box
 	do while (time < t_stop)
 		time = time + dt	
 		step = step + 1	
-		call calc_dynamics(N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
+		
+		!velocity verlet integration method
+		call calc_dynamics(.false., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
 		call new_pos(N_part, L_side, dt, vel, pos)
-		!call rescale_vel(T_initial, Temperature, dt, N_part, vel)			
+		call calc_dynamics(.true., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
+		!call rescale_vel(T_initial, kin_energy, Kb, N_part, vel)			
 		
 		tot_energy = pot_energy + kin_energy
-		Temperature = 2*kin_energy/(3*N_part*Kb)		
+		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)		
 		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
 		
 		call plot_points(pos)	
