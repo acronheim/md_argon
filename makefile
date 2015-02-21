@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = #-Wall -Wextra -march=native -O3
+FFLAGS = -ffast-math #-Wall -Wextra -march=native -O3
 
 LDFLAGS =
 LIBS = -llapack

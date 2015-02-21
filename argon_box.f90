@@ -17,8 +17,8 @@ program argon_box
 	use md_plot
 	implicit none
 	
-	integer, parameter :: N_cell_dim = 4
-	real(8), parameter :: dt = 0.004_8, T_initial = 9d-1, rho = 0.85_8, t_stop = 1d2
+	integer, parameter :: N_cell_dim = 4, velocity_rescale_steps = 100
+	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.70_8, t_stop = 1d1
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3), m = 1d0
@@ -32,16 +32,15 @@ program argon_box
 	real(8) :: time, kin_energy, pot_energy, virial
 	real(8) :: Pressure, Temperature, tot_energy
 
-	
-	
-	
+	! Create initial state
 	call cubic_fcc_lattice(N_cell_dim, L_side, pos)
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, N_part, vel)
+	
+	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
 
 	time = 0d0
 	step = 0
-	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side) 	
 	do while (time < t_stop)
 		time = time + dt	
 		step = step + 1	
@@ -50,14 +49,22 @@ program argon_box
 		call calc_dynamics(.false., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
 		call new_pos(N_part, L_side, dt, vel, pos)
 		call calc_dynamics(.true., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
-		!call rescale_vel(T_initial, kin_energy, Kb, N_part, vel)			
+		
+		!Temperature control
+		if (step < velocity_rescale_steps) then
+			call rescale_vel(T_initial, kin_energy, Kb, N_part, vel)			
+		end if
 		
 		tot_energy = pot_energy + kin_energy
-		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)		
-		Pressure = (1 + 1/(6*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
+		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)	!Center of mass degrees of freedom substracted..	
+		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
 		
 		call plot_points(pos)	
-		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		
+		tot_energy = tot_energy/N_part
+		pot_energy = pot_energy/N_part 
+		kin_energy = kin_energy/N_part		
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
 	end do	
 	
