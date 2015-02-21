@@ -1,12 +1,12 @@
 !argon gas in a box simulation, molecular dynamics.
-!compile with: gfortran argon-box.f90 $(pkg-config --cflags --libs plplotd-f95)
 
 !the cubic geometry sides of length = L
 !initial positions initialized according to fcc lattice structure	
 !number of fcc cells per cartesian dimension = Ncell, 
 !number of particles is N, (4 particles per cube)	
 
-!linear aproximation: x = x + v*dt, dv= F/m*dt: semi iplicit euler method
+!velocity verlet method: v' = v+1/2*F(x)/m*dt; x = x+v'*dt; v = v'+1/2*F/m*dt. 
+! (coverted from initially an implementation of the semi iplicit euler method)
 !time evolution for particles in lennard jones potential: U = 4*e*((s/r)**12-(s/r)**6),
 !Fij = -du/dx = -du/dr*dr/dx = e*(48*s**12/r**13 - 6*s**6/r**7) * x/r, 
 !r = sqrt(x**2+y**2+z**2)		
@@ -45,7 +45,7 @@ program argon_box
 		time = time + dt	
 		step = step + 1	
 		
-		!velocity verlet integration method
+		!velocity verlet integration method, .true. triggers the calculation of thermodynamic quantities.
 		call calc_dynamics(.false., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
 		call new_pos(N_part, L_side, dt, vel, pos)
 		call calc_dynamics(.true., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
