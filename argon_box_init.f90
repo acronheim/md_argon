@@ -31,7 +31,7 @@ contains
 		integer, intent(in) :: N_cell_dim
 		real(8), intent(in) :: L_side
 		real(8), intent(out), dimension(1:3, 1:(4*N_cell_dim**3)) :: pos
-		print *, "initializing initial particle positions"
+
 		n = 0
 		do i = 1,N_cell_dim
 			do j = 1,N_cell_dim

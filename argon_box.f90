@@ -17,14 +17,14 @@ program argon_box
 	use md_plot
 	implicit none
 	
-	integer, parameter :: N_cell_dim = 4, velocity_rescale_steps = 50
-	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.88_8, t_stop = 1d0
+	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50
+	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.88_8, t_stop = 5d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
-	real(8), parameter :: L_side = (N_part/rho)**(1._8/3), m = 1d0
+	real(8), parameter :: L_side = (N_part/rho)**(1._8/3) 
 	
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
-	real(8), parameter :: Kb = 1d0 	!Boltzman constant
+	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 	integer :: i,j,k,l,n, step !iteration variables	
