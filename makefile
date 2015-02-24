@@ -1,8 +1,8 @@
 FC = gfortran
-FFLAGS = -ffast-math -march=native -O3 -mno-avx #-Wall -Wextra
+FFLAGS = -ffast-math -march=native -O3 -mno-avx -Wall -Wextra -Wtabs
 
 LDFLAGS =
-LIBS = -llapack
+LIBS = -llapack -lblas
 
 FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 LIBS += $(shell pkg-config --libs plplotd-f95)
@@ -14,6 +14,7 @@ OBJS =
 OBJS += argon_box_dynamics.o
 OBJS += argon_box_init.o
 OBJS += md_plot.o
+OBJS += argon_box_results.o
 OBJS += argon_box.o
 
 

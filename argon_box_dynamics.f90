@@ -6,12 +6,12 @@ module argon_box_dynamics
 	
 contains
 	
-	subroutine calc_dynamics(calc_quant, N_part, L_side, time_step, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
+	subroutine calc_dynamics(calc_quant, N_part, L_side, time_step, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
 		
 		logical, intent(in) :: calc_quant !for improving efficiency with velocity verlet method
 		integer, intent(in) :: N_part
 		real(8), intent(in) :: e, s, r_cut !Lennard Jones
-		real(8), intent(in) :: m, time_step, L_side, Kb
+		real(8), intent(in) :: m, time_step, L_side
 		real(8), intent(inout), dimension(1:3, 1:N_part) :: vel
 		real(8), intent(in), dimension(1:3, 1:N_part) :: pos
 		integer :: i,j,k,l,n		

@@ -14,7 +14,8 @@
 program argon_box
 	use argon_box_init 
 	use argon_box_dynamics
-	use md_plot
+	use argon_box_results
+!	use md_plot
 	implicit none
 	
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50
@@ -27,7 +28,8 @@ program argon_box
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-	integer :: i,j,k,l,n, step !iteration variables	
+!	integer :: i,j,k,l,n, step !iteration variables	
+	integer :: step 
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
 	real(8) :: time, kin_energy, pot_energy, virial
 	real(8) :: Pressure, Temperature, tot_energy
@@ -37,7 +39,7 @@ program argon_box
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, N_part, vel)
 	
-	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
+!	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
 
 	time = 0d0
 	step = 0
@@ -46,9 +48,9 @@ program argon_box
 		step = step + 1	
 		
 		!velocity verlet integration method, .true. triggers the calculation of thermodynamic quantities.
-		call calc_dynamics(.false., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)																																		
+		call calc_dynamics(.false., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel) 
 		call new_pos(N_part, L_side, dt, vel, pos)
-		call calc_dynamics(.true., N_part, L_side, dt, Kb, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
+		call calc_dynamics(.true., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
 		
 		!Temperature control
 		if (step < velocity_rescale_steps) then
@@ -59,8 +61,8 @@ program argon_box
 		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)	!Center of mass degrees of freedom substracted..	
 		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
 		
-		call plot_points(pos)	
-		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		!call plot_points(pos)	
+		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
 		
 		tot_energy = tot_energy/N_part
 		pot_energy = pot_energy/N_part 
@@ -68,15 +70,7 @@ program argon_box
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
 	end do	
 	
-	call plot_end
+!	call plot_end
 
-contains
-
-	subroutine write_energy_file(H, kin_energy, pot_energy, T, cnt)
-		real(8), intent(in) :: H, kin_energy, T, pot_energy
-		integer, intent(in) :: cnt
-		open (unit=1,file="energy_matrix.dat",action="write")
-		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy, T
-	end subroutine
 
 end program
