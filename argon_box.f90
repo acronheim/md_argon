@@ -31,7 +31,7 @@ program argon_box
 !	integer :: i,j,k,l,n, step !iteration variables	
 	integer :: step 
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
-	real(8) :: time, kin_energy, pot_energy, virial
+	real(8) :: time, kin_energy, pot_energy, virial, prev_kin_energy, sum_deltaK_sqr, sum_kin_energy, delta_kin_energy
 	real(8) :: Pressure, Temperature, tot_energy
 
 	! Create initial state
@@ -43,6 +43,11 @@ program argon_box
 
 	time = 0d0
 	step = 0
+	prev_kin_energy = 0d0
+	sum_deltaK_sqr = 0d0
+	sum_kin_energy = 0d0
+	delta_kin_energy = 0d0
+
 	do while (time < t_stop)
 		time = time + dt	
 		step = step + 1	
@@ -63,12 +68,21 @@ program argon_box
 		
 		!call plot_points(pos)	
 		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
-		
+		delta_kin_energy = kin_energy - prev_kin_energy
+
+		sum_deltaK_sqr = sum_deltaK_sqr +  delta_kin_energy**2
+		sum_kin_energy = sum_kin_energy + kin_energy
+
+		prev_kin_energy = kin_energy
+
 		tot_energy = tot_energy/N_part
 		pot_energy = pot_energy/N_part 
 		kin_energy = kin_energy/N_part		
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
+		
 	end do	
+	
+	call calc_specific_heat(N_part, sum_kin_energy, sum_deltaK_sqr)
 	
 !	call plot_end
 
