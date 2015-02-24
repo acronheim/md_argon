@@ -18,7 +18,7 @@ contains
 		integer, intent(in) :: N_part	
 		real(8) :: specific_heat
 
-		specific_heat = (2d0/(3d0*N_part) - sum_deltaK_sqr / sum_kin_energy)**(-1d0)
+		specific_heat = ((2d0/(3d0*N_part)) - (sum_deltaK_sqr / (sum_kin_energy**2)))**(-1)
 		
 		print *, "The specific heat is ", specific_heat
 		

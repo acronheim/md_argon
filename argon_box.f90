@@ -68,6 +68,7 @@ program argon_box
 		
 		!call plot_points(pos)	
 		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+
 		delta_kin_energy = kin_energy - prev_kin_energy
 
 		sum_deltaK_sqr = sum_deltaK_sqr +  delta_kin_energy**2
