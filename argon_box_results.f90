@@ -2,7 +2,7 @@ module argon_box_results
 	implicit none
   	private
 	
-	public write_energy_file, calc_specific_heat, write_pos_correlation, pos_correlation
+	public write_energy_file, calc_specific_heat, write_pos_correlation, pos_correlation, write_histogram_file
 
 contains
 
@@ -13,20 +13,43 @@ contains
 		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy, T
 	end subroutine
 
-	subroutine calc_specific_heat(end_of_routine,N_part, kin_energy, prev_kin_energy, sum_kin_energy, sum_deltaK_sqr)
+	subroutine write_histogram_file(average_number, num_intervals, N_part, step )
+		integer, intent(in) :: num_intervals, N_part, step
+		integer, intent(in), dimension(1:num_intervals) :: average_number
+		real(8) :: constant_factor, temp_factor
+		integer :: i
+
+		temp_factor = num_intervals**3/(N_part * (N_part - 1))
+		constant_factor = temp_factor / ( step * 4 * abs(atan(1d0)) * 4)
+
+
+		open (unit=6,file="histogram.dat",action="write")
+		do i=1,num_intervals
+
+			write (6,"(I3, 4F18.6)")  i, (constant_factor * average_number(i) )/ (i**2)
+!			print *, num_intervals, N_part, step, average_number(i), i
+!I3, 4F18.6
+
+		end do 
+		
+		print *, (N_part*(N_part-1) * step), (N_part*(N_part-1) * step * 4) 
+		print *, (N_part*(N_part-1) * step * 4 * abs(atan(1d0)) * 4), abs(atan(1d0))
+
+	end subroutine
+
+
+	subroutine calc_specific_heat(end_of_routine,N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 		logical, intent(in) :: end_of_routine
-		real(8), intent(in) :: kin_energy, prev_kin_energy
-		real(8), intent(out) :: sum_kin_energy, sum_deltaK_sqr
+		real(8), intent(in) :: kin_energy
+		real(8), intent(out) :: sum_kin_energy, sum_kin_energy_sqr
 		integer, intent(in) :: N_part	
-		real(8) :: specific_heat, delta_kin_energy
+		real(8) :: specific_heat
 
-		delta_kin_energy = kin_energy - prev_kin_energy
-
-		sum_deltaK_sqr = sum_deltaK_sqr +  delta_kin_energy**2
+		sum_kin_energy_sqr = sum_kin_energy_sqr +  kin_energy**2
 		sum_kin_energy = sum_kin_energy + kin_energy
 
 		if (end_of_routine .eqv. .true.) then
-			specific_heat = ((2d0/(3d0*N_part)) - (sum_deltaK_sqr / (sum_kin_energy**2)))**(-1)
+			specific_heat = ((2d0/(3d0*N_part)) - ((sum_kin_energy_sqr - sum_kin_energy**2) / (sum_kin_energy**2)))**(-1)
 
 			print *, "The specific heat is ", specific_heat
 		end if

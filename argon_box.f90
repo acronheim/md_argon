@@ -26,12 +26,16 @@ program argon_box
 	
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
+
+	integer, parameter :: num_intervals = 100
+	integer, dimension(1:num_intervals) :: average_number
+
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-!	integer :: i,j,k,l,n, step !iteration variables	
+!	integer :: i  ,j,k,l,n, step !iteration variables	
 	integer :: step 
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
-	real(8) :: time, kin_energy, pot_energy, virial, prev_kin_energy, sum_deltaK_sqr, sum_kin_energy
+	real(8) :: time, kin_energy, pot_energy, virial, sum_kin_energy_sqr, sum_kin_energy
 	real(8) :: Pressure, Temperature, tot_energy
 
 	! Create initial state
@@ -43,19 +47,24 @@ program argon_box
 
 	time = 0d0
 	step = 0
-	prev_kin_energy = 0d0
-	sum_deltaK_sqr = 0d0
+	sum_kin_energy_sqr = 0d0
 	sum_kin_energy = 0d0
+
+	average_number = 0
 
 	do while (time < t_stop)
 		time = time + dt	
 		step = step + 1	
 		
 		!velocity verlet integration method, .true. triggers the calculation of thermodynamic quantities.
-		call calc_dynamics(.false., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel) 
+		call calc_dynamics(.false., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, &
+                                   & virial, vel, num_intervals, average_number) 
 		call new_pos(N_part, L_side, dt, vel, pos)
-		call calc_dynamics(.true., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, virial, vel)
-		
+		call calc_dynamics(.true., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, &
+                                   & virial, vel, num_intervals, average_number)
+
+
+
 		!Temperature control
 		if (step < velocity_rescale_steps) then
 			call rescale_vel(T_initial, kin_energy, Kb, N_part, vel)			
@@ -67,20 +76,32 @@ program argon_box
 		
 		!call plot_points(pos)	
 		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
-		call calc_specific_heat(.false., N_part, kin_energy, prev_kin_energy, sum_kin_energy, sum_deltaK_sqr)
+		call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 
-		prev_kin_energy = kin_energy
 
 		tot_energy = tot_energy/N_part
 		pot_energy = pot_energy/N_part 
 		kin_energy = kin_energy/N_part		
-		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
-		
+
+		if (mod(step,25) == 0) then
+			print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
+		end if
+
 	end do	
 	
-	call write_pos_correlation(L_side, 10, pos, N_part, step)
-	call calc_specific_heat(.true., N_part, kin_energy, prev_kin_energy, sum_kin_energy, sum_deltaK_sqr)
+	
+
+!	call write_pos_correlation(L_side, 10, pos, N_part, step)
+	call calc_specific_heat(.true., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 !	call plot_end
+	
+	call write_histogram_file(average_number, num_intervals, N_part, step )
+
+
+	
+	open(unit=3, file = "constants.dat")
+	write(3, "(I6,I6,4F18.6)") step, N_part, L_side
+	close(3)
 
 
 end program

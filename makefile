@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = -ffast-math -march=native -O3 -Wall -Wextra -Wtabs -mno-avx 
+FFLAGS = -ffast-math -march=native -O3 -Wall -Wextra -Wtabs #-mno-avx 
 
 LDFLAGS =
 LIBS = -llapack -lblas
@@ -14,16 +14,19 @@ MV = mv
 OBJDIR = obj/
 MODDIR = mod/
 
+VPATH = $(OBJDIR) $(MODDIR)
+
 OBJS = 
 OBJS += argon_box_dynamics.o
 OBJS += argon_box_init.o
 OBJS += md_plot.o
 OBJS += argon_box_results.o
 OBJS += argon_box.o
-OBJS2 += test.o
+OBJS2 += calc_end_results.o
+OBJS2 += argon_box_results.o
 
 
-all: $(OBJDIR) argon_box test move
+all: $(OBJDIR) argon_box calc_end_results move
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR) $(MODDIR)
@@ -31,7 +34,7 @@ $(OBJDIR):
 argon_box: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
 
-test: $(OBJS2)
+calc_end_results: $(OBJS2) 
 	$(LINK) -o $@ $^ $(LIBS)
 
 %.o: %.f90
@@ -39,11 +42,11 @@ test: $(OBJS2)
 
 move:           
 	$(MV) $(OBJS) $(OBJS2) $(OBJDIR)
-	$(MV) *.mod $(MODDIR)
+	$(MV) %.mod $(MODDIR)
 
 .PHONY: clean
 clean:
-	$(RM) argon_box test $(OBJS) *.mod 
+	$(RM) argon_box calc_end_results $(OBJS) *.mod 
 	rm -rf obj/ mod/
 
 
