@@ -17,6 +17,8 @@ contains
 		integer :: i,j,k,l,n		
 		real(8), intent(out) :: kin_energy, pot_energy, virial
 		real(8) :: sum_v_2, F(3), dF(3), r, r_vec(3)
+
+
 		
 		virial = 0
 		pot_energy = 0 
@@ -38,6 +40,16 @@ contains
 								if (n > i) then	
 									pot_energy = pot_energy + 4*e*((s/r)**12-(s/r)**6)
 									virial =  virial + dot_product(r_vec, dF) 
+!!!!!!!!!!	idea for correlation function (change m to other variable as it is already used for the mass..)
+! 	do m = 0,N_discr						
+! 		r_discr(m) = m*L_side/N_discr
+! 	end do
+! 									do m = 0, N_discr
+! 										if ( (r => r_discr(m)) .and. (r =< r_discr(m+1))) then
+! 											hist(m) = hist(m) + 1									
+! 										end if
+! 									end do
+!!!!!!!!!!
 								end if	
 							end if
 						end if
