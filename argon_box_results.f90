@@ -31,9 +31,7 @@ contains
 !I3, 4F18.6
 
 		end do 
-		
-		print *, (N_part*(N_part-1) * step), (N_part*(N_part-1) * step * 4) 
-		print *, (N_part*(N_part-1) * step * 4 * abs(atan(1d0)) * 4), abs(atan(1d0))
+
 
 	end subroutine
 
