@@ -26,7 +26,7 @@ contains
 		pot_energy = 0 
 		sum_v_2 = 0
 
-		delta_r = ((sqrt(3d0) * L_side) / num_intervals)
+		delta_r = L_side / num_intervals
 			
 		do n = 1,N_part 	
 			F = 0
@@ -40,7 +40,11 @@ contains
 					
 						! Updating the histogram for the pair correlation function !!							
 						hist_i = int(r/delta_r)
-						histogram_vector(hist_i) = histogram_vector(hist_i) + 1
+						if (hist_i < num_intervals) then
+							histogram_vector(hist_i) = histogram_vector(hist_i) + 1
+						else
+							histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
+						end if
 						! Updating the histogram for the pair correlation function !!
 
   

@@ -27,7 +27,7 @@ program argon_box
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
 
-	integer, parameter :: num_intervals = 100
+	integer, parameter :: num_intervals = 500
 	integer, dimension(1:num_intervals) :: average_number
 
 	
