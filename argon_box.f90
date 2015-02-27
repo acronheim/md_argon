@@ -64,7 +64,6 @@ program argon_box
                                    & virial, vel, num_intervals, average_number)
 
 
-
 		!Temperature control
 		if (step < velocity_rescale_steps) then
 			call rescale_vel(T_initial, kin_energy, Kb, N_part, vel)			
@@ -91,17 +90,10 @@ program argon_box
 	
 	
 
-!	call write_pos_correlation(L_side, 10, pos, N_part, step)
 	call calc_specific_heat(.true., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 !	call plot_end
 	
 	call write_histogram_file(average_number, num_intervals, N_part, step )
 
-
 	
-	open(unit=3, file = "constants.dat")
-	write(3, "(I6,I6,4F18.6)") step, N_part, L_side
-	close(3)
-
-
 end program
