@@ -39,6 +39,7 @@ contains
 						r = sqrt(dot_product(r_vec, r_vec))
 					
 						! Updating the histogram for the pair correlation function !!							
+
 						hist_i = int(r/delta_r)
 						if (hist_i < num_intervals) then
 							histogram_vector(hist_i) = histogram_vector(hist_i) + 1

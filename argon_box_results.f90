@@ -2,7 +2,7 @@ module argon_box_results
 	implicit none
   	private
 	
-	public write_energy_file, calc_specific_heat, write_pos_correlation, pos_correlation, write_histogram_file
+	public write_energy_file, calc_specific_heat, write_histogram_file
 
 contains
 
