@@ -2,7 +2,7 @@ module argon_box_results
 	implicit none
   	private
 	
-	public write_energy_file, calc_specific_heat, write_histogram_file
+	public write_energy_file, write_histogram_file ,calc_specific_heat
 
 contains
 
@@ -50,8 +50,7 @@ contains
 			specific_heat = ((2d0/(3d0*N_part)) - ((sum_kin_energy_sqr - sum_kin_energy**2) / (sum_kin_energy**2)))**(-1)
 
 			print *, "The specific heat is ", specific_heat
-		end if
-		
+		end if		
 	end subroutine
 
 

@@ -27,15 +27,15 @@ program argon_box
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
 
-	integer, parameter :: num_intervals = 500
-	integer, dimension(1:num_intervals) :: average_number
+	integer, parameter :: hist_num_intervals = 500
+	integer, dimension(1:hist_num_intervals) :: histogram_vector
 
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
 !	integer :: i  ,j,k,l,n, step !iteration variables	
 	integer :: step 
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
-	real(8) :: time, kin_energy, pot_energy, virial, sum_kin_energy_sqr, sum_kin_energy
+	real(8) :: time, kin_energy, pot_energy, virial !, sum_kin_energy_sqr, sum_kin_energy
 	real(8) :: Pressure, Temperature, tot_energy
 
 	! Create initial state
@@ -44,13 +44,12 @@ program argon_box
 	call init_vel(T_initial, Kb, m, N_part, vel)
 	
 !	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
-
 	time = 0d0
 	step = 0
-	sum_kin_energy_sqr = 0d0
-	sum_kin_energy = 0d0
-
-	average_number = 0
+	!!!!!!!!!!!
+!	sum_kin_energy_sqr = 0d0
+!	sum_kin_energy = 0d0
+	histogram_vector = 0
 
 	do while (time < t_stop)
 		time = time + dt	
@@ -58,11 +57,10 @@ program argon_box
 		
 		!velocity verlet integration method, .true. triggers the calculation of thermodynamic quantities.
 		call calc_dynamics(.false., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, &
-                                   & virial, vel, num_intervals, average_number) 
+                                   & virial, vel, hist_num_intervals, histogram_vector) 
 		call new_pos(N_part, L_side, dt, vel, pos)
 		call calc_dynamics(.true., N_part, L_side, dt, m, e, s, r_cut, pos, kin_energy, pot_energy, &
-                                   & virial, vel, num_intervals, average_number)
-
+                                   & virial, vel, hist_num_intervals, histogram_vector)
 
 		!Temperature control
 		if (step < velocity_rescale_steps) then
@@ -71,29 +69,19 @@ program argon_box
 		
 		tot_energy = pot_energy + kin_energy
 		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)	!Center of mass degrees of freedom substracted..	
-		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + correction cuttoff	
+		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + TODO: correction cuttoff	
 		
 		!call plot_points(pos)	
-		call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
-		call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
-
-
+		
 		tot_energy = tot_energy/N_part
 		pot_energy = pot_energy/N_part 
-		kin_energy = kin_energy/N_part		
+		kin_energy = kin_energy/N_part
 
-		if (mod(step,25) == 0) then
-			print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
-		end if
-
-	end do	
-	
-	
-
-	call calc_specific_heat(.true., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
-!	call plot_end
-	
-	call write_histogram_file(average_number, num_intervals, N_part, step )
-
-	
+		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
+		
+		call write_histogram_file(histogram_vector, hist_num_intervals, N_part, step)
+		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		!call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
+	end do		
+!	call plot_end	
 end program
