@@ -1,0 +1,375 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Arsclassica Article
+% LaTeX Template
+% Version 1.1 (10/6/14)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Lorenzo Pantieri (http://www.lorenzopantieri.net) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+10pt, % Main document font size
+a4paper, % Paper type, use 'letterpaper' for US Letter paper
+oneside, % One page layout (no page indentation)
+%twoside, % Two page layout (page indentation for binding and different headers)
+headinclude,footinclude, % Extra spacing for the header and footer
+BCOR5mm, % Binding correction
+]{scrartcl}
+
+%----------------------------------------------------------------------------------------
+
+\usepackage{listings} % Required for inserting code snippets
+\usepackage[usenames,dvipsnames]{color} % Required for specifying custom colors and referring to colors by name
+\usepackage[titletoc,title]{appendix}
+\usepackage{ amssymb }
+\usepackage{hyperref}
+
+\definecolor{DarkGreen}{rgb}{0.0,0.4,0.0} % Comment color
+\definecolor{highlight}{RGB}{255,251,204} % Code highlight color
+
+\lstdefinestyle{Style1}{ % Define a style for your code snippet, multiple definitions can be made if, for example, you wish to insert multiple code snippets using different programming languages into one document
+language=Fortran, % Detects keywords, comments, strings, functions, etc for the language specified
+backgroundcolor=\color{highlight}, % Set the background color for the snippet - useful for highlighting
+basicstyle=\footnotesize\ttfamily, % The default font size and style of the code
+breakatwhitespace=false, % If true, only allows line breaks at white space
+breaklines=true, % Automatic line breaking (prevents code from protruding outside the box)
+captionpos=b, % Sets the caption position: b for bottom; t for top
+commentstyle=\usefont{T1}{pcr}{m}{sl}\color{DarkGreen}, % Style of comments within the code - dark green courier font
+deletekeywords={}, % If you want to delete any keywords from the current language separate them by commas
+%escapeinside={\%}, % This allows you to escape to LaTeX using the character in the bracket
+firstnumber=1, % Line numbers begin at line 1
+frame=single, % Frame around the code box, value can be: none, leftline, topline, bottomline, lines, single, shadowbox
+frameround=tttt, % Rounds the corners of the frame for the top left, top right, bottom left and bottom right positions
+keywordstyle=\color{Blue}\bf, % Functions are bold and blue
+morekeywords={}, % Add any functions no included by default here separated by commas
+numbers=left, % Location of line numbers, can take the values of: none, left, right
+numbersep=10pt, % Distance of line numbers from the code box
+numberstyle=\tiny\color{Gray}, % Style used for line numbers
+rulecolor=\color{black}, % Frame border color
+showstringspaces=false, % Don't put marks in string spaces
+showtabs=false, % Display tabs in the code as lines
+stepnumber=5, % The step distance between line numbers, i.e. how often will lines be numbered
+stringstyle=\color{Purple}, % Strings are purple
+tabsize=2, % Number of spaces per tab in the code
+}
+
+\input{structure.tex} % Include the structure.tex file which specified the document structure and layout
+
+\hyphenation{Fortran hy-phen-ation} % Specify custom hyphenation points in words with dashes where you would like hyphenation to occur, or alternatively, don't put any dashes in a word to stop hyphenation altogether
+
+\setcounter{secnumdepth}{5}
+
+
+% Create a command to cleanly insert a snippet with the style above anywhere in the document
+\newcommand{\insertcode}[2]{\begin{itemize}\item[]\lstinputlisting[caption=#2,label=#1,style=Style1]{#1}\end{itemize}} % The first argument is the script location/filename and the second is a caption for the listing
+
+%----------------------------------------------------------------------------------------
+%	TITLE AND AUTHOR(S)
+%----------------------------------------------------------------------------------------
+
+\title{\normalfont\spacedallcaps{Molecular dynamics simulation of Argon}} % The article title
+
+\author{\spacedlowsmallcaps{Alexander Cronheim\textsuperscript{1} \& Aboubakr El Mahdaoui\textsuperscript{1}}} % The article author(s) - author affiliations need to be specified in the AUTHOR AFFILIATIONS block
+
+\date{} % An optional date to appear under the author(s)
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADERS
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\sectionmark}[1]{\markright{\spacedlowsmallcaps{#1}}} % The header for all pages (oneside) or for even pages (twoside)
+%\renewcommand{\subsectionmark}[1]{\markright{\thesubsection~#1}} % Uncomment when using the twoside option - this modifies the header on odd pages
+\lehead{\mbox{\llap{\small\thepage\kern1em\color{halfgray} \vline}\color{halfgray}\hspace{0.5em}\rightmark\hfil}} % The header style
+
+\pagestyle{scrheadings} % Enable the headers specified in this block
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS & LISTS OF FIGURES AND TABLES
+%----------------------------------------------------------------------------------------
+
+\maketitle % Print the title/author/date block
+
+\setcounter{tocdepth}{2} % Set the depth of the table of contents to show sections and subsections only
+
+\tableofcontents % Print the table of contents
+
+\listoffigures % Print the list of figures
+
+\listoftables % Print the list of tables
+
+{\let\thefootnote\relax\footnotetext{\textsuperscript{1} \textit{Faculty of Applied Physics, University of Techonology, Delft, the Netherlands}}}
+
+\newpage % Start the article content on the second page, remove this if you have a longer abstract that goes onto the second page
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\section*{Abstract} % This section will not appear in the table of contents due to the star (\section*)
+
+The motion of a collection of 864 particles has been simulated using Molecular Dynamics techniques to compute values for pressure, specific heat and the static pair correlation function in reduced units. The computed properties were compared with experimental results for the properties of argon. The simulation was done with a Lennard-Jones pair-potential and the system was allowed to reach equilibrium. The computed results are in good agreement with the known properties of argon.
+
+%\lipsum[1] % Dummy text
+
+%----------------------------------------------------------------------------------------
+%	AUTHOR AFFILIATIONS
+%----------------------------------------------------------------------------------------
+
+%{\let\thefootnote\relax\footnotetext{* \textit{Faculty of Applied Physics, University of Techonology, Delft, the Netherlands}}}
+
+
+%----------------------------------------------------------------------------------------
+
+\newpage % Start the article content on the second page, remove this if you have a longer abstract that goes onto the second page
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\section{Introduction}
+
+Molecular dynamics is a method to simulate a many-particle system by numerically solving Newton's classical equations of motion for all particles for a period of time. The main limitations are the fact that simulations are only  realizable for small systems  and times compared to experimental systems in general. Furthermore, the systems to be simulated can only be classical in the usual molecular dynamics approach. 
+
+In this report we discuss the results of simulations for a system of argon gas with 864 particles. Molecular dynamics simulations of argon are reported to be in good agreement with experimental results\cite{Verlet:1967md}. The particles are placed in a FCC lattice, considering the fact that the ground state configuration is a FCC lattice for argon. A Lennard-Jones Potential is implemented for the calculation of the force between the particles where a pair potential is assumed. The initial velocities of the particles are randomly generated for each velocity component while obeying a Maxwell-Boltzmann distribution for all particles. 
+
+After initialization the system's equations of motion are solved numerically after each time step using Verlet's algorithm. The system is allowed to relax to it's equilibrium using a thermostat to rescale the velocities and enforce energy conservation. After the equilibrium has been reached, the simulation continues and collects results for calculating the time average of different properties of the system. The virial's theorem allows the calculation of the pressure, specific heat is evaluated using a formula derived by Lebowitz using the fluctuations of the kinetic energy\cite{Duane:1985lz}.
+
+ 
+\newpage
+%----------------------------------------------------------------------------------------
+%	THEORY
+%----------------------------------------------------------------------------------------
+
+\section{Theory}
+
+\subsection{FCC Lattice}
+
+\subsection{Lennard Jones Potential}
+
+\subsection{Virial Theorem}
+
+\subsection{Specific Heat}
+
+The specific heat at constant volume $C_V$  is defined as:
+$$ C_V = \left ( \frac{\delta E}{\delta T} \right )_V $$
+
+\noindent
+In molecular dynamics simulations, a quantity that can be calculated is the ensemble average of the total energy $\langle E\rangle_{NVT}$:
+
+$$ \langle E\rangle_{NVT} = \frac{ \sum_X e^{-\beta \mathcal{H}(X)} \mathcal{H}(X)}{ \sum_X e^{-\beta \mathcal{H}(X)}} = - \frac{\delta ln(Z)}{\delta \beta} $$
+
+\noindent
+Using the ensemble average for the total energy, the formula for the specific heat can be rewritten as a function of the fluctuations in the total energy:
+
+\begin{align}
+C_V &= \frac{1}{k_B T^2} \frac{\delta^2 ln(Z)}{\delta \beta^2} \\
+&= \frac{1}{k_B T^2} \left ( \langle E^2\rangle_{NVT} - \langle E\rangle^2_{NVT} \right )
+\end{align}
+
+\noindent
+This is still difficult to use in a program simulating a system in the microcanonical ensemble as the total energy is kept fixed, but following the derivation by Lebowitz\cite{Duane:1985lz} this can be related to the fluctuation in kinetic energy:
+
+$$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) $$
+
+
+
+\subsection{Pair correlation function}
+
+\newpage
+%----------------------------------------------------------------------------------------
+%	METHODS
+%----------------------------------------------------------------------------------------
+
+\section{Methods for Simulation}
+
+\subsection{Initialization}
+
+\subsubsection{FCC Lattice}
+
+\subsubsection{Velocity Distribution}
+
+\paragraph{Box Muller Algorithm}
+
+
+\subsection{Dynamics}
+
+\subsubsection{Boundary Conditions}
+
+
+
+\subsubsection{Lennard Jones Potential}
+
+
+\subsubsection{Force Calculation}
+
+\paragraph{Verlet Algorithm}
+
+\paragraph{Leap Frog Method}
+
+
+\subsubsection{Pressure Calculation}
+
+\paragraph{Virial Theorem}
+
+\subsubsection{Thermostat}
+
+\subsection{Information Processing}
+
+\subsubsection{Specific Heat}
+
+The implementation in our simulation is inside the algorithm for the dynamics of the particles. For each time step the new velocities are calculated, the kinetic energy is also calculated and the relevant sums of the kinetic energy are updated in a subroutine "calc\_specific\_heat":
+
+\insertcode{"Scripts/specific_heat_snippet_1.f90"}{Updating the relevant sums of the kinetic energy} % The first argument is the script location/filename and the second is a caption for the listing
+
+
+
+\paragraph{Lebowitz Algorithm}
+
+As discussed earlier, the specific heat is related to the fluctuations in kinetic energy using a formula derived by Lebowitz\cite{Duane:1985lz}:
+
+$$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) $$
+
+\noindent
+Rewriting this to get an expression for the specific heat:
+
+\begin{align}
+C_V &= \left (\frac{2}{3N} - \frac{\langle\delta K^2\rangle}{\langle K\rangle^2}\right)^{-1} \\
+&= \left (\frac{2}{3N} - \frac{\langle K^2 \rangle - \langle K \rangle^2}{\langle K\rangle^2} \right )^{-1} 
+\end{align}
+
+
+\noindent
+Using the time average instead of the averages can be expressed as an average of the sum over all time steps $n_t$:
+$$ \langle K^2 \rangle  = \frac{\sum_{i=1}^{n_t} K(i)^2}{n_t} $$
+$$ \langle K \rangle^2  = \left ( \frac{\sum_{i=1}^{n_t} K(i)  }{n_t} \right)^2 $$
+
+\noindent
+Now the specific heat can be calculated as:
+\begin{align}
+C_V &= \left (\frac{2}{3N} - \frac{\langle K^2 \rangle - \langle K \rangle^2}{\langle K\rangle^2} \right )^{-1} \\
+&= \left ( \frac{2}{3N} - \frac{\sum_{i=1}^{n_t} K(i)^2*n_t - \left (\sum_{i=1}^{n_t} K(i) \right )^2 }{\left (\sum_{i=1}^{n_t} K(i) \right )^2 } \right )^{-1}
+\end{align}
+
+This is implemented in our code within the same subroutine "calc\_specific\_heat" after an if statement is enabled at the end of the simulation:
+\insertcode{"Scripts/specific_heat_snippet_2.f90"}{Calculating the specific heat} % The first argument is the script location/filename and the second is a caption for the listing
+
+
+\subsubsection{Pair Correlation Function}
+
+
+\newpage
+%----------------------------------------------------------------------------------------
+%	RESULTS AND DISCUSSION
+%----------------------------------------------------------------------------------------
+
+\section{Results and Discussion}
+
+\subsection{Pressure}
+
+\subsection{Temperature}
+
+
+%------------------------------------------------
+
+\subsection{Specific Heat}
+
+
+
+
+Some text with a citation \cite{Verlet:1967md}
+The other citation \cite{Glosser:2015iccp} and another\cite{Thijssen:2013cp}
+
+
+\subsection{Pair Correlation function}
+
+\subsection{Phase Transitions}
+
+
+%------------------------------------------------
+
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\renewcommand{\refname}{\spacedlowsmallcaps{References}} % For modifying the bibliography heading
+
+\bibliographystyle{unsrt}
+
+\bibliography{sample.bib} % The file containing the bibliography
+
+%----------------------------------------------------------------------------------------
+
+
+%----------------------------------------------------------------------------------------
+%	APPENDIX
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\begin{appendices}
+
+\section{Main Fortran source code}
+
+%----------------------------------------------------------------------------------------
+
+\insertcode{"../argon_box.f90"}{argon\_box.f90} % The first argument is the script location/filename and the second is a caption for the listing
+
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+
+\section{Fortran source code for setting the initial conditions}
+
+%----------------------------------------------------------------------------------------
+
+\insertcode{"../argon_box_init.f90"}{argon\_box\_init.f90} % The first argument is the script location/filename and the second is a caption for the listing
+
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+
+\section{Fortran source code for the dynamics of the system}
+
+%----------------------------------------------------------------------------------------
+
+\insertcode{"../argon_box_dynamics.f90"}{argon\_box\_dynamics.f90} % The first argument is the script location/filename and the second is a caption for the listing
+
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+
+\section{Fortran source code for output of results}
+
+%----------------------------------------------------------------------------------------
+
+\insertcode{"../argon_box_results.f90"}{argon\_box\_results.f90} % The first argument is the script location/filename and the second is a caption for the listing
+
+%----------------------------------------------------------------------------------------
+
+\newpage
+
+\end{appendices}
+
+\end{document}

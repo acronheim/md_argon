@@ -19,7 +19,7 @@ program argon_box
 	implicit none
 	
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50
-	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.88_8, t_stop = 5d0
+	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.8_8, t_stop = 5d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3) 
@@ -28,7 +28,7 @@ program argon_box
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
 
 	integer, parameter :: hist_num_intervals = 500
-	integer, dimension(1:hist_num_intervals) :: histogram_vector
+	integer, dimension(1:hist_num_intervals) :: histogram_vector, tot_histogram_vector
 
 	
 	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
@@ -47,8 +47,9 @@ program argon_box
 	time = 0d0
 	step = 0
 	!!!!!!!!!!!
-!	sum_kin_energy_sqr = 0d0
-!	sum_kin_energy = 0d0
+	sum_kin_energy_sqr = 0d0
+	sum_kin_energy = 0d0
+	tot_histogram_vector = 0
 
 	do while (time < t_stop)
 		time = time + dt	
@@ -77,11 +78,14 @@ program argon_box
 		kin_energy = kin_energy/N_part
 
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
-		print *, histogram_vector
+		!print *, histogram_vector
+
+		tot_histogram_vector = tot_histogram_vector + histogram_vector
 
 		!call write_histogram_file(histogram_vector, hist_num_intervals, N_part, step)
 		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
-		!call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
+		call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 	end do		
 !	call plot_end	
+	call write_histogram_file(tot_histogram_vector, hist_num_intervals, N_part, step)
 end program
