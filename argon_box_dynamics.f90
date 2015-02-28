@@ -27,6 +27,7 @@ contains
 		virial = 0
 		pot_energy = 0 
 		sum_v_2 = 0
+		histogram_vector = 0
 			
 		do n = 1,N_part 	
 			F = 0
@@ -37,6 +38,16 @@ contains
 					if (n/=i) then 
 						r_vec = (/pos(1,n)-pos(1,i), pos(2,n)-pos(2,i), pos(3,n)-pos(3,i)/) + L_side*(/j,k,l/)
 						r = sqrt(dot_product(r_vec, r_vec))
+						! histogram for the pair correlation function 
+						if ( (n > i) .and. (calc_quant .eqv. .true.)) then
+							hist_i = int(r/delta_r_hist)
+							if (hist_i < num_intervals) then
+								histogram_vector(hist_i) = histogram_vector(hist_i) + 1
+							else 
+								histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
+							end if
+						end if
+						!force calculation
 						if (r<r_cut) then
 							dF = e*(48*s**12/r**14 - 24*s**6/r**8) * r_vec
 							F = F + dF
@@ -45,13 +56,6 @@ contains
 								if (n > i) then	
 									pot_energy = pot_energy + 4*e*((s/r)**12-(s/r)**6)
 									virial =  virial + dot_product(r_vec, dF) 
-									! histogram for the pair correlation function !!
-									hist_i = int(r/delta_r_hist)
-									if (hist_i < num_intervals) then
-										histogram_vector(hist_i) = histogram_vector(hist_i) + 1
-									else 
-										histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
-									end if
 								end if	
 							end if
 						end if

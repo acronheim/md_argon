@@ -49,7 +49,6 @@ program argon_box
 	!!!!!!!!!!!
 !	sum_kin_energy_sqr = 0d0
 !	sum_kin_energy = 0d0
-	histogram_vector = 0
 
 	do while (time < t_stop)
 		time = time + dt	
@@ -78,8 +77,9 @@ program argon_box
 		kin_energy = kin_energy/N_part
 
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
-		
-		call write_histogram_file(histogram_vector, hist_num_intervals, N_part, step)
+		print *, histogram_vector
+
+		!call write_histogram_file(histogram_vector, hist_num_intervals, N_part, step)
 		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
 		!call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 	end do		
