@@ -41,7 +41,7 @@ contains
 						! histogram for the pair correlation function 
 						if ((n > i) .and. (calc_quant .eqv. .true.)) then! .and. (k==0) .and. (j==0) .and. (l==0)) then
 							hist_i = 1 + floor(r/delta_r_hist)
-							if (hist_i < num_intervals) then
+							if (hist_i < num_intervals) then ! defines a cut off distance
 								histogram_vector(hist_i) = histogram_vector(hist_i) + 1
 							else 
 								histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
