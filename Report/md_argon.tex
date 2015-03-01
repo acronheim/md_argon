@@ -158,8 +158,6 @@ After initialization the system's equations of motion are solved numerically aft
 
 \section{Theory}
 
-\subsection{FCC Lattice}
-
 \subsection{Lennard Jones Potential}
 
 \subsection{Virial Theorem}
@@ -191,6 +189,15 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 \subsection{Pair correlation function}
 
+The static pair correlation function in the canonical ensemble can be expressed as:
+
+$$ g(\mathbf{r,r'}) = V^2 \frac{1}{N!h^{3N}Z} \int_V d^3r_3....d^3r_N e^{-\beta V_N(\mathbf{r,r',r_3.....r_N})} $$
+
+\noindent
+If the system is homogeneous and has a large number of particles $N$, it can also be written as a function of the difference $\mathbf{\Delta r} = \mathbf{r} - \mathbf{r'}$:
+
+$$ g(\mathbf{\Delta r}) = \frac{V}{N(N-1)}  \left \langle \int d^3r' \sum_{i,j i \neq j}^N \delta(\mathbf{r}-\mathbf{r}_i) \delta(\mathbf{r'} + \Delta\mathbf{r} - \mathbf{r}_j) \right \rangle $$
+
 \newpage
 %----------------------------------------------------------------------------------------
 %	METHODS
@@ -200,9 +207,21 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 \subsection{Initialization}
 
-\subsubsection{FCC Lattice}
+The system is initialized by creating an fcc lattice structure and assigning each position of the particles to the lattice points. This is done for 864 particles but can in principle be easily implemented for a number of particles $N$ that can be written as $4M^3$ with $M$ an integer and representing the number of fcc cells in one dimension.
+
+\insertcode{"Scripts/initialization_snippet_1.f90"}{Constructing the fcc lattice} % The first argument is the script location/filename and the second is a caption for the listing
+
+Above can you see the code with $i$, $j$ and $k$ for the $x$, $y$ and $z$ component and a function fcc\_cell is called that takes an argument $l$ to add the relative position of each particle in a particular cell.
+
 
 \subsubsection{Velocity Distribution}
+
+The particles are then assigned an initial velocity that is randomly distributed but the distribution in each direction obeys a Maxwell-Boltzmann distribution:
+$$ f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} $$
+
+\insertcode{"Scripts/initialization_snippet_2.f90"}{Generating initial velocities} % The first argument is the script location/filename and the second is a caption for the listing
+
+\insertcode{"Scripts/initialization_snippet_3.f90"}{Removing the center of mass degree of freedom} % The first argument is the script location/filename and the second is a caption for the listing
 
 \paragraph{Box Muller Algorithm}
 
@@ -215,13 +234,10 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 \subsubsection{Lennard Jones Potential}
 
-
+ 
 \subsubsection{Force Calculation}
 
-\paragraph{Verlet Algorithm}
-
-\paragraph{Leap Frog Method}
-
+\paragraph{Leap Frog/Verlet Algorithm}
 
 \subsubsection{Pressure Calculation}
 
@@ -271,6 +287,43 @@ This is implemented in our code within the same subroutine "calc\_specific\_heat
 
 
 \subsubsection{Pair Correlation Function}
+
+The pair correlation function can be evaluated in molecular dynamics systems  if a histogram is recorded of the number of pairs of particles $n(r)$ for each distance $r$:
+
+$$ g(r) = \frac{2V}{N(N-1)} \left [ \frac{\langle n(r) \rangle }{ 4 \pi r^2 \Delta r} \right ] $$
+
+\noindent
+In our simulation a number of intervals $n_i$ is defined which together with the length in each direction $L$ sets the small $\Delta r$:
+
+$$ \Delta r  = \frac{L}{n_i} $$
+
+\noindent
+Again a time average is used and the average number of pairs $\langle n(r) \rangle $ is calculated as a sum of all the pair occurences $N(r,t)$ in a time step $t$ and in a distance $r$ over all time steps $n_t$:
+$$ \langle n(r) \rangle = \frac{\sum_t^{n_t} N(r,t)}{n_t} $$
+
+\noindent
+For a large enough number of intervals the distance $r$ can be approximated by $i\Delta r$ with $i$ the index of the corresponding interval. The number of pair occurences $N(r,t)$ in a time step $t$ and in a distance $r$ can be expressed now as function of the interval you are in $N(i,t)$. This way we are able to count all pair occurences in our program and calculate the pair correlation function:
+
+\begin{align}
+g(r) &\approx \frac{2V}{N(N-1)} \left [ \frac{\langle n(r) \rangle }{ 4 \pi r^2 \Delta r} \right ] \\
+&= \frac{2L^3}{N(N-1)} \left [ \frac{\sum_t^{n_t} N(i,t)}{n_t 4 \pi i^2 \Delta r^2 \Delta r} \right ] \\
+&= \frac{2L^3}{N(N-1)} \frac{\sum_t^{n_t} N(i,t)}{n_t 4 \pi i^2} \frac{n_i^3}{L^3} \\
+&= \frac{2}{N(N-1)} \frac{n_i^3}{n_t 4 \pi} \frac{\sum_t^{n_t} N(i,t)}{i^2}
+\end{align}
+
+\noindent
+This is implemented in the code as follows. For each interval $i$ the number of pair occurences in that interval is registered in a particular time interval. This is done while evaluating the forces of the particles:
+\insertcode{"Scripts/pair_correlation_snippet_1.f90"}{Updating the histogram for each interval} % The first argument is the script location/filename and the second is a caption for the listing
+
+\noindent
+As the final time step is done and the routine for the dynamics is finished, the sum for each interval is passed to a routine for calculating the pair correlation function that is called at the end:
+\insertcode{"Scripts/pair_correlation_snippet_2.f90"}{Factors are needed to prevent oeverflow errors} % The first argument is the script location/filename and the second is a caption for the listing
+
+
+
+
+
+
 
 
 \newpage
