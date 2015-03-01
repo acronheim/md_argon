@@ -15,12 +15,12 @@ program argon_box
 	use argon_box_init 
 	use argon_box_dynamics
 	use argon_box_results
-	use md_plot
+	!use md_plot
 	implicit none
 	
 
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50, equilibration_steps = 200
-	real(8), parameter :: dt = 0.004_8, T_initial = 2d-1, rho = 0.88_8, t_stop = 10d0
+	real(8), parameter :: dt = 0.004_8, T_initial = 4d-1, rho = 0.80_8, t_stop = 10d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3) 
@@ -43,7 +43,7 @@ program argon_box
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, N_part, vel)
 
-	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
+	!call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
 	
 	do while (time < t_stop)
 		time = time + dt	
@@ -69,7 +69,7 @@ program argon_box
 		pot_energy = pot_energy/N_part 
 		kin_energy = kin_energy/N_part
 
-		call plot_points(pos)	
+		!call plot_points(pos)	
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, &
 					& "T=", Temperature, "P=", Pressure
 		!print *, histogram_vector
@@ -83,7 +83,7 @@ program argon_box
 		end if
 		call write_energy_file(kin_energy, pot_energy, virial, time, step)
 	end do		
-	call plot_end	
+	!call plot_end	
 
 	! results
 	pot_energy = sum_potential_energy/(step - equilibration_steps)
