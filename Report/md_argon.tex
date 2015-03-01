@@ -160,18 +160,9 @@ Because the system is initially not in equilibrium, the temperature will change 
 
 \section{Theory}
 
-$$ \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} r_{ij} \frac{\delta U(R)}{\delta r_{ij}} \right \rangle_{cut-off} $$
 
 
-\begin{align}
-\tilde{\mathbf{v}}(t) &=  \mathbf{v}(t) + h \mathbf{F}(t)/2 \\
-\mathbf{r}(t+h) &= \mathbf{r}(t) + h\tilde{\mathbf{v}}(t) \\
-\mathbf{v}(t+h) &= \tilde{\mathbf{v}}(t) + h \mathbf{F}(t+h)/2 
-\end{align}
 
-$$ \lambda = \sqrt{ \frac{(N-1) 3 k_BT_D}{ \sum_{i=1}^N mv_i^2} } $$
-
-$$ F_{ij} = \epsilon \left ( 48 \frac{\sigma^{12}}{r^{14}} - 24 \frac{\sigma^6}{r^8} \right ) \Delta r $$
 
 
 
@@ -199,9 +190,9 @@ however following an argument in computation physics from Jos Thijssen, the cent
 
 \subsection{Virial Theorem}
 
-\begin{equation}
-\frac{P \beta}{\rho}=1-\frac{1}{3Nk_BT} \left<  \sum_{i=1}^{N} \sum_{i < j}  \mathbf{F}_{ij} \cdot \mathbf{r}_{ij} \right>
-\end{equation}
+Virial theorem with $\frac{\delta U(R)}{\delta r_{ij}} = \mathbf{r_{ij}} \cdot \mathbf{f_{ij}}$
+
+$$ \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} \mathbf{r_{ij}} \cdot \mathbf{f_{ij}} \right \rangle $$
 
 ensemble average 
 time average
@@ -278,9 +269,6 @@ Uniformly distributed random numbers are drawn from the intrinsic fortran random
 
 The forces are calculated according to newtons law.
 
-\begin{equation}
-F_{i,j} = 
-\end{equation}
 
 \subsubsection{Boundary Conditions}
 As the system to be simulated is very small compared to real experimental systems, boundaries would probably have a larger effect in the simulation. To counter this periodic boundary conditions are used and this is implemented by copying the system in all directions creating a large box of 9 identical smaller boxes with the box in the middle as our box of interest. As we calculate the forces the Lennard Jones pair potential is calculated for all the particles inside the box and also all the other 8 copies that are closer than a predefined cut off distance, in order to keep the number of pair interactions that must be calculated computable. 
@@ -296,7 +284,19 @@ As the system to be simulated is very small compared to real experimental system
  
 \subsubsection{Force Calculation}
 
-\paragraph{Leap Frog/Verlet Algorithm}
+\begin{equation}
+F_{i,j} = 
+\end{equation}
+
+$$ F_{ij} = \epsilon \left ( 48 \frac{\sigma^{12}}{r^{14}} - 24 \frac{\sigma^6}{r^8} \right ) \Delta r $$
+
+\paragraph{Velocity Verlet Algorithm}
+
+\begin{align}
+\tilde{\mathbf{v}}(t) &=  \mathbf{v}(t) + h \mathbf{F}(t)/2 \\
+\mathbf{r}(t+h) &= \mathbf{r}(t) + h\tilde{\mathbf{v}}(t) \\
+\mathbf{v}(t+h) &= \tilde{\mathbf{v}}(t) + h \mathbf{F}(t+h)/2 
+\end{align}
 
 \subsubsection{Pressure Calculation}
 
@@ -305,6 +305,13 @@ As the system to be simulated is very small compared to real experimental system
 \subsection{Equipartition theorem}
 
 \subsubsection{Thermostat}
+
+
+$$ \lambda = \sqrt{ \frac{(N-1) 3 k_BT_D}{ \sum_{i=1}^N mv_i^2} } $$
+
+
+
+
 
 \subsection{Information Processing}
 
