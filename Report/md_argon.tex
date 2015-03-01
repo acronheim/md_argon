@@ -375,11 +375,32 @@ As the final time step is done and the routine for the dynamics is finished, the
 
 \section{Results and Discussion}
 
-\subsection{Pressure \& Temperature}
+\subsection{Macroscopic Thermodynamic Quantities}
 In this section the results for pressure and temperature is compared with the values of table ~\vref{tab:label} for molecular dynamics simulation of a Lennard Jones liquid in \cite{Thijssen:2013cp}
 
 \begin{table}[hbt]
-\caption{Molecular dynamics data for thermodynamic quantities of the Lennard–Jones liquid.}
+\caption{Reference data of thermodynamic quantities of the Lennard–Jones liquid.}
+\centering
+\begin{tabular}{lllll}
+\toprule
+\toprule
+%\multicolumn{2}{c}{Name} \\
+%\cmidrule(r){1-2}
+$\rho(1/\sigma^3)$ & $T_0(\epsilon/k_B)$ & $T$ & $\beta P/\rho$ & $U(\epsilon)$ \\
+\midrule
+$0.88$ & $1.0$ & $0.990$ & $2.98$ & $-5.704$ \\
+$0.8$ & $1.0$ & $1.010$ & $1.31$ & $-5.271$ \\
+$0.7$ & $1.0$ & $1.014$ & $1.06$ & $-4.662$ \\
+\bottomrule
+\bottomrule
+\end{tabular}
+\label{tab:label}
+\end{table}
+
+The results are presented in Table ~\vref{tab:label}
+
+\begin{table}[hbt]
+\caption{Thermodynamic quantities}
 \centering
 \begin{tabular}{lllll}
 \toprule
@@ -400,14 +421,6 @@ $0.7$ & $1.0$ & $1.014$ & $1.06$ & $-4.662$ \\
 
 %------------------------------------------------
 
-\subsection{Specific Heat}
-
-
-
-
-Some text with a citation \cite{Verlet:1967md}
-The other citation \cite{Glosser:2015iccp} and another\cite{Thijssen:2013cp}
-
 
 \subsection{Pair Correlation function}
 
@@ -419,11 +432,11 @@ For liquid argon the pair correlation function is simply oscillating indicating 
 
 \begin{figure}[tb]
 \centering
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.2$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T02}} \quad
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.4$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T04}\label{fig:ipsum}} \\
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T06}} \quad
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.8$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T08}}
-\caption[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{Phase transition shown in pair correlation} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.4$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T04}} \quad
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T06}\label{fig:ipsum}} \\
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.8$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T08}} \quad
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=1.0$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T10}}
+\caption[Pair correlation function of Argon($\rho = 0.88$, $T=0.4-1.0$) ]{Phase transition shown in pair correlation} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
 \label{fig:correlation}
 \end{figure}
 
