@@ -6,11 +6,11 @@ module argon_box_results
 
 contains
 
-	subroutine write_energy_file(H, kin_energy, pot_energy, T, cnt)
-		real(8), intent(in) :: H, kin_energy, T, pot_energy
+	subroutine write_energy_file(kin_energy, pot_energy, virial, time, cnt)
+		real(8), intent(in) :: virial, kin_energy, time, pot_energy
 		integer, intent(in) :: cnt
 		open (unit=1,file="energy_matrix.dat",action="write")
-		write (1,"(I6, 4F18.6)")  cnt, H, kin_energy, pot_energy, T
+		write (1,"(I6, 4F18.6)")  cnt, time, kin_energy, pot_energy, virial
 	end subroutine
 
 	subroutine write_histogram_file(average_number, num_intervals, N_part, step )

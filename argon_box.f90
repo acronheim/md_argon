@@ -77,17 +77,17 @@ program argon_box
 		pot_energy = pot_energy/N_part 
 		kin_energy = kin_energy/N_part
 
-
 		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, &
 					& "T=", Temperature, "P=", Pressure
 		!print *, histogram_vector
 		
 		tot_histogram_vector = tot_histogram_vector + histogram_vector
 
-		!call plot_points(pos)	
-		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+!		call plot_points(pos)	
+		call write_energy_file(kin_energy, pot_energy, virial, time, step)
 		call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step)
 	end do		
 !	call plot_end	
+	call calc_specific_heat(.true., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step)
 	call write_histogram_file(tot_histogram_vector, hist_num_intervals, N_part, step)
 end program
