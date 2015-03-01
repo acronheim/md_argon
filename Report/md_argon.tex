@@ -148,7 +148,9 @@ Molecular dynamics is a method to simulate a many-particle system by numerically
 
 In this report we discuss the results of simulations for a system of argon gas with 864 particles. Molecular dynamics simulations of argon are reported to be in good agreement with experimental results\cite{Verlet:1967md}. The particles are placed in a FCC lattice, considering the fact that the ground state configuration is a FCC lattice for argon. A Lennard-Jones Potential is implemented for the calculation of the force between the particles where a pair potential is assumed. The initial velocities of the particles are randomly generated for each velocity component while obeying a Maxwell-Boltzmann distribution for all particles. 
 
-After initialization the system's equations of motion are solved numerically after each time step using Verlet's algorithm. The system is allowed to relax to it's equilibrium using a thermostat to rescale the velocities and enforce energy conservation. After the equilibrium has been reached, the simulation continues and collects results for calculating the time average of different properties of the system. The virial's theorem allows the calculation of the pressure, specific heat is evaluated using a formula derived by Lebowitz using the fluctuations of the kinetic energy\cite{Duane:1985lz}.
+After initialization the system's equations of motion are solved numerically after each time step using a variant of Verlet's algorithm which is symplectic and as such conserves energy.  Because the systems initial velocities are assigned by a random number generator, the system is initially not in equilibrium. Therefore the system is allowed to relax a certain amount of time steps, until it reaches it's equilibrium state.
+
+Because the system is initially not in equilibrium, the temperature will change towards the equilibrium temperature during equilibration. By using a simple thermostat algorithm that rescales the velocities, the system can be moved towards the intended temparature. When the desired equilibrium state has been reached, the simulation continues and collects results for calculating the time average of different properties of the system. The virial theorem is applied in the calculation of the pressure, specific heat is evaluated using a formula derived by Lebowitz using the fluctuations of the kinetic energy\cite{Duane:1985lz}.
 
  
 \newpage
@@ -157,6 +159,7 @@ After initialization the system's equations of motion are solved numerically aft
 %----------------------------------------------------------------------------------------
 
 \section{Theory}
+
 
 \subsection{Lennard Jones Potential}
 
@@ -168,6 +171,13 @@ For argon this has been working quite well as a good mathematical model for all 
  
 
 \subsection{Virial Theorem}
+
+\begin{equation}
+\frac{P \beta}{\rho}=1-\frac{1}{3Nk_BT} \left<  \sum_{i=1}^{N} \sum_{i < j}  \mathbf{F}_{ij} \cdot \mathbf{r}_{ij} \right>
+\end{equation}
+
+ensemble average 
+time average
 
 \subsection{Specific Heat}
 
@@ -231,9 +241,15 @@ $$ f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} $$
 \insertcode{"Scripts/initialization_snippet_3.f90"}{Removing the center of mass degree of freedom} % The first argument is the script location/filename and the second is a caption for the listing
 
 \paragraph{Box Muller Algorithm}
+uniformly distributed random numbers are drawn from the intrinsic fortran random-number subroutine. The seed for the random number generator is provided by a script \cite{} from the ICCP coding nodes that generates a seed based on the entropy collected by the computer. The Box muller transform \cite{} is applied to convert two random variables drawn from a uniform distribution to a random variable from the 
 
+After assignment of the random initial velocities the center of mass velocity is set to zero in order to avoid introducing an offset in the kinetic energy calculation.
 
 \subsection{Dynamics}
+
+\begin{equation}
+F_{i,j} = 
+\end{equation}
 
 \subsubsection{Boundary Conditions}
 As the system to be simulated is very small compared to real experimental systems, boundaries would probably have a larger effect in the simulation. To counter this periodic boundary conditions are used and this is implemented by copying the system in all directions creating a large box of 9 identical smaller boxes with the box in the middle as our box of interest. As we calculate the forces the Lennard Jones pair potential is calculated for all the particles inside the box and also all the other 8 copies that are closer than a predefined cut off distance. 
@@ -254,6 +270,8 @@ As the system to be simulated is very small compared to real experimental system
 \subsubsection{Pressure Calculation}
 
 \paragraph{Virial Theorem}
+
+\subsection{Equipartition theorem}
 
 \subsubsection{Thermostat}
 
