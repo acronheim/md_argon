@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = -ffast-math -march=native -O3 -Wall -Wextra -Wtabs -fcheck=all  -mno-avx 
+FFLAGS =  -march=native -O3 -Wall -Wextra -Wtabs -fcheck=all  -mno-avx #-ffast-math
 
 LDFLAGS =
 LIBS = -llapack -lblas
@@ -17,7 +17,7 @@ OBJS =
 OBJS += argon_box_dynamics.o
 OBJS += argon_box_init.o
 OBJS += md_plot.o
-OBJS += argon_box_results.o
+#OBJS += argon_box_results.o
 OBJS += argon_box.o
 
 

@@ -14,11 +14,11 @@
 program argon_box
 	use argon_box_init 
 	use argon_box_dynamics
-	use argon_box_results
+!	use argon_box_results
 !	use md_plot
 	implicit none
 	
-	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50
+	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50, hist_num_intervals = 500
 	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.88_8, t_stop = 5d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
@@ -26,29 +26,25 @@ program argon_box
 	
 	real(8), parameter :: s = 1d0, e = 1d0, r_cut = 5d-1*L_side ! lennard jones potential
 	real(8), parameter :: m = 1d0, Kb = 1d0 	!mass and boltzman constant
-
-	integer, parameter :: hist_num_intervals = 500
-	integer, dimension(1:hist_num_intervals) :: histogram_vector
-
 	
-	!integer, parameter :: N_avSteps = 100 ! #steps used for ensemble average
-!	integer :: i  ,j,k,l,n, step !iteration variables	
-	integer :: step 
+	integer, dimension(1:hist_num_intervals) :: histogram_vector
 	real(8), dimension(1:3, 1:N_part) :: pos, vel 	
-	real(8) :: time, kin_energy, pot_energy, virial !, sum_kin_energy_sqr, sum_kin_energy
+	integer :: step 
+	real(8) :: time, kin_energy, pot_energy, virial 
 	real(8) :: Pressure, Temperature, tot_energy
 
+	! file operations
+	open (unit=1,file="energy_matrix.dat",action="write")
+	
 	! Create initial state
 	call cubic_fcc_lattice(N_cell_dim, L_side, pos)
 	call init_random_seed
 	call init_vel(T_initial, Kb, m, N_part, vel)
-	
+
 !	call plot_init(0d0, L_side,0d0, L_side,0d0, L_side)
+
 	time = 0d0
 	step = 0
-	!!!!!!!!!!!
-!	sum_kin_energy_sqr = 0d0
-!	sum_kin_energy = 0d0
 
 	do while (time < t_stop)
 		time = time + dt	
@@ -68,20 +64,48 @@ program argon_box
 		
 		tot_energy = pot_energy + kin_energy
 		Temperature = 2*kin_energy/(3* (N_part-1) *Kb)	!Center of mass degrees of freedom substracted..	
-		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + TODO: correction cuttoff	
-		
-		!call plot_points(pos)	
+		Pressure = (1 + 1/(3*Kb*Temperature*N_part)* virial) !P/(Kb T rho) + TODO: correction cuttoff					
 		
 		tot_energy = tot_energy/N_part
 		pot_energy = pot_energy/N_part 
 		kin_energy = kin_energy/N_part
 
-		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "T =", Temperature, "P =", Pressure
-		print *, histogram_vector
+		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, &
+					& "T=", Temperature, "P=", Pressure
+		!print *, histogram_vector
 
+		write (1,"(I6, 4F18.6)")  step, time, kin_energy, pot_energy, virial
+		!call plot_points(pos)	
 		!call write_histogram_file(histogram_vector, hist_num_intervals, N_part, step)
-		!call write_energy_file(tot_energy, kin_energy, pot_energy, Temperature, step)
+		!call write_energy_file(step, time, kin_energy, pot_energy, virial)
 		!call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr)
 	end do		
 !	call plot_end	
+
+contains
+
+	subroutine write_energy_file(cnt, time, kin_energy, pot_energy, virial)
+		real(8), intent(in) :: time, kin_energy, virial, pot_energy
+		integer, intent(in) :: cnt
+		open (unit=1,file="energy_matrix.dat",action="write")
+		write (1,"(I6, 4F18.6)")  cnt, time, kin_energy, pot_energy, virial
+	end subroutine
+
+	subroutine write_histogram_file(average_number, num_intervals, N_part, step )
+		integer, intent(in) :: num_intervals, N_part, step
+		integer, intent(in), dimension(1:num_intervals) :: average_number
+		real(8) :: constant_factor, temp_factor, temp_factor2, temp_factor3
+		integer :: i
+
+		temp_factor = 1d0 * num_intervals / N_part
+		temp_factor2 = 1d0 * num_intervals / (N_part - 1)
+		temp_factor3 = 1d0 * num_intervals / step
+		constant_factor = (temp_factor * temp_factor2 * temp_factor3) / ( 4 * abs(atan(1d0)) * 4)
+
+		open (unit=6,file="histogram.dat",action="write")
+		do i=1,num_intervals
+			write (6,"(I3, 4F18.6)")  i, (constant_factor * average_number(i) )/ (i**2)
+		end do 
+	end subroutine
+
 end program
