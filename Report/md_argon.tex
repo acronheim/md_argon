@@ -169,6 +169,18 @@ $$ V_{LJ} =  4 \epsilon \left [ \left (\frac{\sigma}{r} \right )^{12} - \left ( 
 
 For argon this has been working quite well as a good mathematical model for all three phases\cite{Rahman}. 
  
+ 
+ \subsection{Equipartition theorem}
+ 
+The equipartition theorem is applicable that every systems  states that each per degree of freedom the contribution to the kinetic energy $E_kin$ is proportional to $1/2 K_B T$.
+ 
+ \begin{equation} 
+ \label{eq:equipartition}
+ E_kin = \frac{3}{2} (N - 1) K_B T
+ \end{equation}
+ 
+A monatomic gas has three degrees of freedom per particle, 
+however following an argument in computation physics from Jos Thijssen, the center of mass degree of freedom is not available in a micro canonical molecular dynamics simulation, hence the $N-1$ in equation \ref{eq:equipartition}.
 
 \subsection{Virial Theorem}
 
@@ -233,26 +245,30 @@ Above can you see the code with $i$, $j$ and $k$ for the $x$, $y$ and $z$ compon
 
 \subsubsection{Velocity Distribution}
 
-The particles are then assigned an initial velocity that is randomly distributed but the distribution in each direction obeys a Maxwell-Boltzmann distribution:
+The particles are then assigned an initial velocity that is randomly distributed according to the Maxwell-Boltzmann distribution. A property of this distribution is that each (cartesian) velocity component obeys a Gaussian distribution with zero mean:
 $$ f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} $$
 
 \insertcode{"Scripts/initialization_snippet_2.f90"}{Generating initial velocities} % The first argument is the script location/filename and the second is a caption for the listing
 
 \insertcode{"Scripts/initialization_snippet_3.f90"}{Removing the center of mass degree of freedom} % The first argument is the script location/filename and the second is a caption for the listing
 
-\paragraph{Box Muller Algorithm}
-uniformly distributed random numbers are drawn from the intrinsic fortran random-number subroutine. The seed for the random number generator is provided by a script \cite{} from the ICCP coding nodes that generates a seed based on the entropy collected by the computer. The Box muller transform \cite{} is applied to convert two random variables drawn from a uniform distribution to a random variable from the 
-
 After assignment of the random initial velocities the center of mass velocity is set to zero in order to avoid introducing an offset in the kinetic energy calculation.
 
+\paragraph{Box Muller Algorithm}
+Uniformly distributed random numbers are drawn from the intrinsic fortran random-number subroutine. The seed for the random number generator is provided by a script \cite{} from the ICCP coding nodes that generates a seed based on the entropy collected by the computer. The Box muller transform \cite{} is applied to convert two random variables drawn from a uniform distribution to a random variable that is normally distributed.
+
+
+
 \subsection{Dynamics}
+
+The forces are calculated according to newtons law.
 
 \begin{equation}
 F_{i,j} = 
 \end{equation}
 
 \subsubsection{Boundary Conditions}
-As the system to be simulated is very small compared to real experimental systems, boundaries would probably have a larger effect in the simulation. To counter this periodic boundary conditions are used and this is implemented by copying the system in all directions creating a large box of 9 identical smaller boxes with the box in the middle as our box of interest. As we calculate the forces the Lennard Jones pair potential is calculated for all the particles inside the box and also all the other 8 copies that are closer than a predefined cut off distance. 
+As the system to be simulated is very small compared to real experimental systems, boundaries would probably have a larger effect in the simulation. To counter this periodic boundary conditions are used and this is implemented by copying the system in all directions creating a large box of 9 identical smaller boxes with the box in the middle as our box of interest. As we calculate the forces the Lennard Jones pair potential is calculated for all the particles inside the box and also all the other 8 copies that are closer than a predefined cut off distance, in order to keep the number of pair interactions that must be calculated computable. 
 
 \insertcode{"Scripts/boundary_conditions_snippet_1.f90"}{Creating periodic boundary conditions} % The first argument is the script location/filename and the second is a caption for the listing
 
