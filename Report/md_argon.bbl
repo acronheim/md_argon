@@ -1,0 +1,25 @@
+\begin{thebibliography}{1}
+
+\bibitem{Verlet:1967md}
+L.~Verlet.
+\newblock {'Computer "Experiments" on Classical Fluids. I. Thermodynamical
+  Properties of Lennard-Jones Molecules'}.
+\newblock {\em Physical Review}, 159, 1967.
+
+\bibitem{Duane:1985lz}
+S.~Duane.
+\newblock {'Stochastic quantization versus the microcanonical ensemble –
+  getting the best of both worlds'}.
+\newblock {\em Nucl. Phys.}, 275:398--420, 1985.
+
+\bibitem{Glosser:2015iccp}
+Glosser C.
+\newblock {'ICCP Coding Manual'}.
+\newblock 2015.
+
+\bibitem{Thijssen:2013cp}
+J.~Thijssen.
+\newblock {'Computational Physics'}.
+\newblock 2013.
+
+\end{thebibliography}

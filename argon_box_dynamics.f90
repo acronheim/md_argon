@@ -41,10 +41,10 @@ contains
 						! histogram for the pair correlation function 
 						if ((n > i) .and. (calc_quant .eqv. .true.)) then
 							hist_i = 1 + floor(r/delta_r_hist)
-							if (hist_i < num_intervals) then ! defines a cut off distance
+							if (hist_i < num_intervals + 1) then ! defines a cut off distance
 								histogram_vector(hist_i) = histogram_vector(hist_i) + 1
-							else 
-								histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
+							!else 
+							!	histogram_vector(num_intervals) = histogram_vector(num_intervals) + 1
 							end if
 						end if
 						!force calculation
