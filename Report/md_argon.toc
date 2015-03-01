@@ -15,11 +15,10 @@
 \contentsline {paragraph}{\numberline {3.2.3.1}Leap Frog/Verlet Algorithm}{6}{paragraph.3.2.3.1}
 \contentsline {subsubsection}{\numberline {3.2.4}Pressure Calculation}{6}{subsubsection.3.2.4}
 \contentsline {paragraph}{\numberline {3.2.4.1}Virial Theorem}{6}{paragraph.3.2.4.1}
-\contentsline {subsubsection}{\numberline {3.2.5}Thermostat}{6}{subsubsection.3.2.5}
-\contentsline {subsection}{\numberline {3.3}Information Processing}{6}{subsection.3.3}
-\contentsline {subsubsection}{\numberline {3.3.1}Specific Heat}{6}{subsubsection.3.3.1}
-\contentsline {paragraph}{\numberline {3.3.1.1}Lebowitz Algorithm}{6}{paragraph.3.3.1.1}
-\contentsline {subsubsection}{\numberline {3.3.2}Pair Correlation Function}{7}{subsubsection.3.3.2}
+\contentsline {subsubsection}{\numberline {3.2.5}Thermostat}{7}{subsubsection.3.2.5}
+\contentsline {subsection}{\numberline {3.3}Information Processing}{7}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}Specific Heat}{7}{subsubsection.3.3.1}
+\contentsline {subsubsection}{\numberline {3.3.2}Pair Correlation Function}{8}{subsubsection.3.3.2}
 \contentsline {section}{\numberline {4}Results and Discussion}{10}{section.4}
 \contentsline {subsection}{\numberline {4.1}Pressure}{10}{subsection.4.1}
 \contentsline {subsection}{\numberline {4.2}Temperature}{10}{subsection.4.2}
