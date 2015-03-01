@@ -160,6 +160,21 @@ Because the system is initially not in equilibrium, the temperature will change 
 
 \section{Theory}
 
+$$ \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} r_{ij} \frac{\delta U(R)}{\delta r_{ij}} \right \rangle_{cut-off} $$
+
+
+\begin{align}
+\tilde{\mathbf{v}}(t) &=  \mathbf{v}(t) + h \mathbf{F}(t)/2 \\
+\mathbf{r}(t+h) &= \mathbf{r}(t) + h\tilde{\mathbf{v}}(t) \\
+\mathbf{v}(t+h) &= \tilde{\mathbf{v}}(t) + h \mathbf{F}(t+h)/2 
+\end{align}
+
+$$ \lambda = \sqrt{ \frac{(N-1) 3 k_BT_D}{ \sum_{i=1}^N mv_i^2} } $$
+
+$$ F_{ij} = \epsilon \left ( 48 \frac{\sigma^{12}}{r^{14}} - 24 \frac{\sigma^6}{r^8} \right ) \Delta r $$
+
+
+
 
 \subsection{Lennard Jones Potential}
 
@@ -396,7 +411,9 @@ The other citation \cite{Glosser:2015iccp} and another\cite{Thijssen:2013cp}
 
 \subsection{Pair Correlation function}
 
-The pair correlation function is plotted for $\rho = 0.88$ and different values of $T$ in Figure~\vref{fig:correlation}. It can be seen that the correlation function tends to 1 as expected in all cases. Furthermore, the repulsive term of the Lennard Jones potential prevents particles being close together as can be seen in the pair correlation. For $\rho = 0.88$, there is also a phase transition taking place between the temperatures $T=0.8$ and $T=0.6$ where solid argon shows a different pair correlation function with respect to liquid argon. For liquid argon the pair correlation function is simply oscillating indicating what the average distance is between  particles. As you move further away from a particular particle, the fluctuations in the average distances cause the peaks to broaden as well as the peaks to be lower for longer distances in the liquid argon. The solid argon shows peaks where the first, second etc. neighbors are in a lattice structure and shows a more complex function, but the oscillations tend to be more persistent even along longer distances compared to liquid argon as can be expected because of the periodic lattice structure. The results presented show good agreement with other experiments\cite{Thijssen:2013cp}. 
+The pair correlation function is plotted for $\rho = 0.88$ and different values of $T$ in Figure~\vref{fig:correlation}. It can be seen that the correlation function tends to 1 as expected in all cases. Furthermore, the repulsive term of the Lennard Jones potential prevents particles being close together as can be seen in the pair correlation. For $\rho = 0.88$, there is also a phase transition taking place between the temperatures $T=0.8$ and $T=0.6$ where solid argon shows a different pair correlation function with respect to liquid argon. 
+
+For liquid argon the pair correlation function is simply oscillating indicating what the average distance is between  particles. As you move further away from a particular particle, the fluctuations in the average distances cause the peaks to broaden as well as the peaks to be lower for longer distances in the liquid argon. The solid argon shows peaks where the first, second etc. neighbors are in a lattice structure and shows a more complex function, but the oscillations tend to be more persistent even along longer distances compared to liquid argon as can be expected because of the periodic lattice structure. The results presented show good agreement with other experiments\cite{Thijssen:2013cp}. 
 
 %The pair correlation function is plotted for $\rho = 0.88$ and $T=0.6$~\vref{fig:gallery}. It can be seen that this tends to 1 and is typical for solid argon. % The \vref command specifies the location of the reference
 
