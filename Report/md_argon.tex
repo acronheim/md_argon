@@ -158,8 +158,6 @@ After initialization the system's equations of motion are solved numerically aft
 
 \section{Theory}
 
-\subsection{FCC Lattice}
-
 \subsection{Lennard Jones Potential}
 
 \subsection{Virial Theorem}
@@ -200,9 +198,21 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 \subsection{Initialization}
 
-\subsubsection{FCC Lattice}
+The system is initialized by creating an fcc lattice structure and assigning each position of the particles to the lattice points. This is done for 864 particles but can in principle be easily implemented for a number of particles $N$ that can be written as $4M^3$ with $M$ an integer and representing the number of fcc cells in one dimension.
+
+\insertcode{"Scripts/initialization_snippet_1.f90"}{Constructing the fcc lattice} % The first argument is the script location/filename and the second is a caption for the listing
+
+Above can you see the code with $i$, $j$ and $k$ for the $x$, $y$ and $z$ component and a function fcc\_cell is called that takes an argument $l$ to add the relative position of each particle in a particular cell.
+
 
 \subsubsection{Velocity Distribution}
+
+The particles are then assigned an initial velocity that is randomly distributed but the distribution in each direction obeys a Maxwell-Boltzmann distribution:
+$$ f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} $$
+
+\insertcode{"Scripts/initialization_snippet_2.f90"}{Generating initial velocities} % The first argument is the script location/filename and the second is a caption for the listing
+
+\insertcode{"Scripts/initialization_snippet_3.f90"}{Removing the center of mass degree of freedom} % The first argument is the script location/filename and the second is a caption for the listing
 
 \paragraph{Box Muller Algorithm}
 
@@ -215,7 +225,7 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 \subsubsection{Lennard Jones Potential}
 
-
+ 
 \subsubsection{Force Calculation}
 
 \paragraph{Verlet Algorithm}
