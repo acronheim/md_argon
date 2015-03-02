@@ -57,43 +57,46 @@ for i = 1:N
     for j = 1:N_blocks
         E_kin_block(j) = mean( E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
         E_pot_block(j) = mean( E_pot((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
-        E_kin_squared_block(j) = mean( (E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i)).^2);
+        %E_kin_squared_block(j) = mean( (E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i)).^2);
     end 
     E_tot_block = E_pot_block + E_kin_block;
     error_E_kin(i) = std(E_kin_block)/sqrt(N_blocks);
     error_E_pot(i) = std(E_pot_block)/sqrt(N_blocks);
     error_E_tot(i) = std(E_tot_block)/sqrt(N_blocks);
-    error_E_kin_squared(i) = std(E_kin_squared_block)/sqrt(N_blocks);
+    %error_E_kin_squared(i) = std(E_kin_squared_block)/sqrt(N_blocks);
     
     %% specific heat
-    specificheat(i) = -1/(error_E_kin_squared(i)/(kinenergy(i))^2 - 2/(3*N_part));
+    fluctuation_E_kin_squared(i) = mean((E_kin(:,i)-mean(E_kin(:,i))).^2);
+    specificheat(i) = -1/(fluctuation_E_kin_squared(i)/(kinenergy(i))^2 - 2/(3*N_part));
     
 end
 
-
+    error_E_kin
+    error_E_pot
+    error_E_tot
 %% plotting
 
 figure % constant density
 hold on
-selected_indices = density == 0.88
+selected_indices = density == 0.88;
 plot(temperature(selected_indices), compressure(selected_indices))
-selected_indices = density == 0.80
+selected_indices = density == 0.80;
 plot(temperature(selected_indices), compressure(selected_indices))
-selected_indices = density == 0.70
+selected_indices = density == 0.70;
 plot(temperature(selected_indices), compressure(selected_indices))
 title('P(T)')
 xlabel('Temperature')
 ylabel('Compressibility factor')
 
 figure % constant temperature
-selected_indices = T_init == 1
+selected_indices = T_init == 1;
 plot(density(selected_indices), compressure(selected_indices))
 title('P(rho), T =~ 1.0')
 xlabel('density')
 ylabel('Compressibility factor')
 
 figure %specific heat
-selected_indices = density == 0.80
+selected_indices = density == 0.80;
 plot(temperature(selected_indices), specificheat(selected_indices))
 title('specificheat, rho =~ 0.88')
 xlabel('Temperature')
