@@ -74,6 +74,7 @@ end
 %% plotting
 
 figure % constant density
+hold on
 selected_indices = density == 0.88
 plot(temperature(selected_indices), compressure(selected_indices))
 selected_indices = density == 0.80
@@ -98,4 +99,15 @@ title('specificheat, rho =~ 0.88')
 xlabel('Temperature')
 ylabel('Compressibility factor')
 
+
+%%
+figure %energy fluctuations
+hold on
+i = 16
+plot(step(:,i), E_kin(:,i), '-r')
+plot(step(:,i), E_pot(:,i), '-b')
+plot(step(:,i), E_pot(:,i) + E_kin(:,i), '-k')
+title('equilibriation')
+xlabel('timestep')
+ylabel('Energy')
 
