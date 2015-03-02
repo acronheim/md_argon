@@ -53,7 +53,18 @@ for i = 1:N
     temperature(i) = 2*N_part/(3*(N_part-1)*Kb)*kinenergy(i);
     compressure(i) = 1 + 1/(3*Kb*Temperature(i)*N_part)* mean(virial(measurement_interval, i));
     
-    %% data blocking
+%% time correlation length
+    input = E_pot(:,i)
+    timecorrelation = xcorr(input, zero_timecorrelation -1);
+    zero_timecorrelation = length(input);
+    tau_pot(i) = 1/2*sum(timecorrelation/timecorrelation(zero_timecorrelation));
+    
+    input = E_kin(:,i)
+    timecorrelation = xcorr(input, zero_timecorrelation -1, 'coeff');
+    zero_timecorrelation = length(input);
+    tau_kin(i) = 1/2*sum(timecorrelation/timecorrelation(zero_timecorrelation));
+    
+%% data blocking
     for j = 1:N_blocks
         E_kin_block(j) = mean( E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
         E_pot_block(j) = mean( E_pot((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
