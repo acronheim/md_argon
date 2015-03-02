@@ -20,7 +20,7 @@ program argon_box
 	
 
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50, equilibration_steps = 200
-	real(8), parameter :: dt = 0.004_8, T_initial = 4d-1, rho = 0.80_8, t_stop = 10d0
+	real(8), parameter :: dt = 0.004_8, T_initial = 5d-1, rho = 1.2_8, t_stop = 10d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3) 

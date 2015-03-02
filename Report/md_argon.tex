@@ -180,19 +180,19 @@ For argon this has been working quite well as a good mathematical model for all 
  
  \subsection{Equipartition theorem}
  
-The equipartition theorem is applicable that every systems  states that each per degree of freedom the contribution to the kinetic energy $E_{kin}$ is proportional to $1/2 K_B T$.
+The equipartition theorem is applicable that every systems  states that each per degree of freedom the contribution to the kinetic energy $E_{kin}$ is proportional to $1/2 k_B T$.
  
  \begin{equation} 
  \label{eq:equipartition}
- E_kin = \frac{3}{2} (N - 1) K_B T
+ E_kin = \frac{3}{2} (N - 1) k_B T
  \end{equation}
  
 A monatomic gas has three degrees of freedom per particle, 
-however following an argument in computation physics from Jos Thijssen, the center of mass degree of freedom is not available in a micro canonical molecular dynamics simulation, hence the $N-1$ in equation \ref{eq:equipartition}.
+however following an argument in \cite{Thijssen:2013cp}, the center of mass degree of freedom is not available in a micro canonical molecular dynamics simulation, hence the $N-1$ in equation \ref{eq:equipartition}.
 
 \subsection{Virial Theorem}
 
-Virial theorem with $\frac{\delta U(R)}{\delta r_{ij}} = \mathbf{r_{ij}} \cdot \mathbf{f_{ij}}$
+Virial theorem with $\frac{\delta U(R)}{\delta r_{ij}} = \mathbf{r_{ij}} \cdot \mathbf{F_{ij}}$
 
 \begin{equation} \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} \mathbf{r_{ij}} \cdot \mathbf{f_{ij}} \right \rangle \end{equation}
 
@@ -244,7 +244,7 @@ If the system is homogeneous and has a large number of particles $N$, it can als
 
 \subsection{Initialization}
 
-The system is initialized by creating an fcc lattice structure and assigning each position of the particles to the lattice points. This is done for 864 particles but can in principle be easily implemented for a number of particles $N$ that can be written as $4M^3$ with $M$ an integer and representing the number of fcc cells in one dimension.
+The system is initialized by creating an FCC lattice structure and assigning each position of the particles to the lattice points. This is done for 864 particles but can in principle be easily implemented for a number of particles $N$ that can be written as $4M^3$ with $M$ an integer and representing the number of fcc cells in one dimension.
 
 \insertcode{"Scripts/initialization_snippet_1.f90"}{Constructing the fcc lattice} % The first argument is the script location/filename and the second is a caption for the listing
 
@@ -263,7 +263,7 @@ The particles are then assigned an initial velocity that is randomly distributed
 After assignment of the random initial velocities the center of mass velocity is set to zero in order to avoid introducing an offset in the kinetic energy calculation.
 
 \paragraph{Box Muller Algorithm}
-Uniformly distributed random numbers are drawn from the intrinsic fortran random-number subroutine. The seed for the random number generator is provided by a script \cite{} from the ICCP coding nodes that generates a seed based on the entropy collected by the computer. The Box muller transform \cite{} is applied to convert two random variables drawn from a uniform distribution to a random variable that is normally distributed.
+Uniformly distributed random numbers are drawn from the intrinsic Fortran random-number subroutine. The seed for the random number generator is provided by a script from the ICCP coding manual in \cite{Glosser:2015iccp} that generates a seed based on the entropy collected by the computer. The Box muller transform \cite{} is applied to convert two random variables drawn from a uniform distribution to a random variable that is normally distributed.
 
 
 
