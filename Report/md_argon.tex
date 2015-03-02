@@ -171,14 +171,16 @@ Because the system is initially not in equilibrium, the temperature will change 
 
 The Lennard Jones pair potential describes a potential between atoms and models a repulsive term and an attractive term as follows:
 
-$$ V_{LJ} =  4 \epsilon \left [ \left (\frac{\sigma}{r} \right )^{12} - \left ( \frac{\sigma}{r} \right )^6 \right ] $$
+\begin{equation}
+V_{LJ} =  4 \epsilon \left [ \left (\frac{\sigma}{r} \right )^{12} - \left ( \frac{\sigma}{r} \right )^6 \right ]
+\end{equation}
 
 For argon this has been working quite well as a good mathematical model for all three phases\cite{Rahman}. 
  
  
  \subsection{Equipartition theorem}
  
-The equipartition theorem is applicable that every systems  states that each per degree of freedom the contribution to the kinetic energy $E_kin$ is proportional to $1/2 K_B T$.
+The equipartition theorem is applicable that every systems  states that each per degree of freedom the contribution to the kinetic energy $E_{kin}$ is proportional to $1/2 K_B T$.
  
  \begin{equation} 
  \label{eq:equipartition}
@@ -192,7 +194,7 @@ however following an argument in computation physics from Jos Thijssen, the cent
 
 Virial theorem with $\frac{\delta U(R)}{\delta r_{ij}} = \mathbf{r_{ij}} \cdot \mathbf{f_{ij}}$
 
-$$ \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} \mathbf{r_{ij}} \cdot \mathbf{f_{ij}} \right \rangle $$
+\begin{equation} \frac{P}{nk_BT} = 1 - \frac{1}{3Nk_BT} \left \langle \sum_i \sum_{j>i} \mathbf{r_{ij}} \cdot \mathbf{f_{ij}} \right \rangle \end{equation}
 
 ensemble average 
 time average
@@ -200,12 +202,12 @@ time average
 \subsection{Specific Heat}
 
 The specific heat at constant volume $C_V$  is defined as:
-$$ C_V = \left ( \frac{\delta E}{\delta T} \right )_V $$
+\begin{equation} C_V = \left ( \frac{\delta E}{\delta T} \right )_V \end{equation}
 
 \noindent
 In molecular dynamics simulations, a quantity that can be calculated is the ensemble average of the total energy $\langle E\rangle_{NVT}$:
 
-$$ \langle E\rangle_{NVT} = \frac{ \sum_X e^{-\beta \mathcal{H}(X)} \mathcal{H}(X)}{ \sum_X e^{-\beta \mathcal{H}(X)}} = - \frac{\delta ln(Z)}{\delta \beta} $$
+\begin{equation} \langle E\rangle_{NVT} = \frac{ \sum_X e^{-\beta \mathcal{H}(X)} \mathcal{H}(X)}{ \sum_X e^{-\beta \mathcal{H}(X)}} = - \frac{\delta ln(Z)}{\delta \beta} \end{equation}
 
 \noindent
 Using the ensemble average for the total energy, the formula for the specific heat can be rewritten as a function of the fluctuations in the total energy:
@@ -218,7 +220,7 @@ C_V &= \frac{1}{k_B T^2} \frac{\delta^2 ln(Z)}{\delta \beta^2} \\
 \noindent
 This is still difficult to use in a program simulating a system in the microcanonical ensemble as the total energy is kept fixed, but following the derivation by Lebowitz\cite{Duane:1985lz} this can be related to the fluctuation in kinetic energy:
 
-$$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) $$
+\begin{equation} \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) \end{equation}
 
 
 
@@ -226,12 +228,12 @@ $$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 
 
 The static pair correlation function in the canonical ensemble can be expressed as:
 
-$$ g(\mathbf{r,r'}) = V^2 \frac{1}{N!h^{3N}Z} \int_V d^3r_3....d^3r_N e^{-\beta V_N(\mathbf{r,r',r_3.....r_N})} $$
+\begin{equation} g(\mathbf{r,r'}) = V^2 \frac{1}{N!h^{3N}Z} \int_V d^3r_3....d^3r_N e^{-\beta V_N(\mathbf{r,r',r_3.....r_N})} \end{equation}
 
 \noindent
 If the system is homogeneous and has a large number of particles $N$, it can also be written as a function of the difference $\mathbf{\Delta r} = \mathbf{r} - \mathbf{r'}$:
 
-$$ g(\mathbf{\Delta r}) = \frac{V}{N(N-1)}  \left \langle \int d^3r' \sum_{i,j i \neq j}^N \delta(\mathbf{r}-\mathbf{r}_i) \delta(\mathbf{r'} + \Delta\mathbf{r} - \mathbf{r}_j) \right \rangle $$
+\begin{equation} g(\mathbf{\Delta r}) = \frac{V}{N(N-1)}  \left \langle \int d^3r' \sum_{i,j i \neq j}^N \delta(\mathbf{r}-\mathbf{r}_i) \delta(\mathbf{r'} + \Delta\mathbf{r} - \mathbf{r}_j) \right \rangle \end{equation}
 
 \newpage
 %----------------------------------------------------------------------------------------
@@ -252,7 +254,7 @@ Above can you see the code with $i$, $j$ and $k$ for the $x$, $y$ and $z$ compon
 \subsubsection{Velocity Distribution}
 
 The particles are then assigned an initial velocity that is randomly distributed according to the Maxwell-Boltzmann distribution. A property of this distribution is that each (cartesian) velocity component obeys a Gaussian distribution with zero mean:
-$$ f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} $$
+\begin{equation} f(v_i) = \sqrt{\frac{m}{2\pi k_B T}} e^{\frac{-mv_i^2}{2k_BT}} \end{equation}
 
 \insertcode{"Scripts/initialization_snippet_2.f90"}{Generating initial velocities} % The first argument is the script location/filename and the second is a caption for the listing
 
@@ -303,7 +305,7 @@ $$ F_{ij} = \epsilon \left ( 48 \frac{\sigma^{12}}{r^{14}} - 24 \frac{\sigma^6}{
 \subsubsection{Thermostat}
 
 
-$$ \lambda = \sqrt{ \frac{(N-1) 3 k_BT_D}{ \sum_{i=1}^N mv_i^2} } $$
+\begin{equation} \lambda = \sqrt{ \frac{(N-1) 3 k_BT_D}{ \sum_{i=1}^N mv_i^2} } \end{equation}
 
 
 
@@ -320,7 +322,7 @@ The implementation in our simulation is inside the algorithm for the dynamics of
 \noindent
 As discussed earlier, the specific heat is related to the fluctuations in kinetic energy using a formula derived by Lebowitz\cite{Duane:1985lz}:
 
-$$ \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) $$
+\begin{equation} \frac{\langle\delta K^2\rangle}{\langle K\rangle^2} = \frac{2}{3N} \left ( 1 - \frac{3N}{2C_V} \right ) \end{equation}
 
 \noindent
 Rewriting this to get an expression for the specific heat:
@@ -333,8 +335,8 @@ C_V &= \left (\frac{2}{3N} - \frac{\langle\delta K^2\rangle}{\langle K\rangle^2}
 
 \noindent
 Using the time average instead of the ensemble average, the averages can be expressed as a sum over all time steps $n_t$ divided by the time steps:
-$$ \langle K^2 \rangle  = \frac{\sum_{i=1}^{n_t} K(i)^2}{n_t} $$
-$$ \langle K \rangle^2  = \left ( \frac{\sum_{i=1}^{n_t} K(i)  }{n_t} \right)^2 $$
+\begin{equation} \langle K^2 \rangle  = \frac{\sum_{i=1}^{n_t} K(i)^2}{n_t} \end{equation}
+\begin{equation} \langle K \rangle^2  = \left ( \frac{\sum_{i=1}^{n_t} K(i)  }{n_t} \right)^2 \end{equation}
 
 \noindent
 Now the specific heat can be calculated as:
@@ -351,16 +353,16 @@ This is implemented in our code within the same subroutine "calc\_specific\_heat
 
 The pair correlation function can be evaluated in molecular dynamics systems  if a histogram is recorded of the number of pairs of particles $n(r)$ for each distance $r$:
 
-$$ g(r) = \frac{2V}{N(N-1)} \left [ \frac{\langle n(r) \rangle }{ 4 \pi r^2 \Delta r} \right ] $$
+\begin{equation} g(r) = \frac{2V}{N(N-1)} \left [ \frac{\langle n(r) \rangle }{ 4 \pi r^2 \Delta r} \right ] \end{equation}
 
 \noindent
 In our simulation a number of intervals $n_i$ is defined which together with the length in each direction $L$ sets the small $\Delta r$:
 
-$$ \Delta r  = \frac{L}{n_i} $$
+\begin{equation} \Delta r  = \frac{L}{n_i} \end{equation}
 
 \noindent
 Again a time average is used and the average number of pairs $\langle n(r) \rangle $ is calculated as a sum of all the pair occurences $N(r,t)$ in a time step $t$ and in a distance $r$ over all time steps $n_t$:
-$$ \langle n(r) \rangle = \frac{\sum_t^{n_t} N(r,t)}{n_t} $$
+\begin{equation} \langle n(r) \rangle = \frac{\sum_t^{n_t} N(r,t)}{n_t} \end{equation}
 
 \noindent
 For a large enough number of intervals the distance $r$ can be approximated by $i\Delta r$ with $i$ the index of the corresponding interval. The number of pair occurences $N(r,t)$ in a time step $t$ and in a distance $r$ can be expressed now as function of the interval you are in $N(i,t)$. This way we are able to count all pair occurences in our program and calculate the pair correlation function:
@@ -394,11 +396,32 @@ As the final time step is done and the routine for the dynamics is finished, the
 
 \section{Results and Discussion}
 
-\subsection{Pressure \& Temperature}
+\subsection{Macroscopic Thermodynamic Quantities}
 In this section the results for pressure and temperature is compared with the values of table ~\vref{tab:label} for molecular dynamics simulation of a Lennard Jones liquid in \cite{Thijssen:2013cp}
 
 \begin{table}[hbt]
-\caption{Molecular dynamics data for thermodynamic quantities of the Lennard–Jones liquid.}
+\caption{Reference data of thermodynamic quantities of the Lennard–Jones liquid.}
+\centering
+\begin{tabular}{lllll}
+\toprule
+\toprule
+%\multicolumn{2}{c}{Name} \\
+%\cmidrule(r){1-2}
+$\rho(1/\sigma^3)$ & $T_0(\epsilon/k_B)$ & $T$ & $\beta P/\rho$ & $U(\epsilon)$ \\
+\midrule
+$0.88$ & $1.0$ & $0.990$ & $2.98$ & $-5.704$ \\
+$0.8$ & $1.0$ & $1.010$ & $1.31$ & $-5.271$ \\
+$0.7$ & $1.0$ & $1.014$ & $1.06$ & $-4.662$ \\
+\bottomrule
+\bottomrule
+\end{tabular}
+\label{tab:label}
+\end{table}
+
+The results are presented in Table ~\vref{tab:label}
+
+\begin{table}[hbt]
+\caption{Thermodynamic quantities}
 \centering
 \begin{tabular}{lllll}
 \toprule
@@ -419,14 +442,6 @@ $0.7$ & $1.0$ & $1.014$ & $1.06$ & $-4.662$ \\
 
 %------------------------------------------------
 
-\subsection{Specific Heat}
-
-
-
-
-Some text with a citation \cite{Verlet:1967md}
-The other citation \cite{Glosser:2015iccp} and another\cite{Thijssen:2013cp}
-
 
 \subsection{Pair Correlation function}
 
@@ -438,11 +453,11 @@ For liquid argon the pair correlation function is simply oscillating indicating 
 
 \begin{figure}[tb]
 \centering
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.2$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T02}} \quad
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.4$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T04}\label{fig:ipsum}} \\
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T06}} \quad
-\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.8$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T08}}
-\caption[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{Phase transition shown in pair correlation} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.4$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T04}} \quad
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.6$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T06}\label{fig:ipsum}} \\
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=0.8$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T08}} \quad
+\subfloat[Pair correlation function of Argon($\rho = 0.88$, $T=1.0$) ]{\includegraphics[width=.45\columnwidth]{histogramrho088T10}}
+\caption[Pair correlation function of Argon($\rho = 0.88$, $T=0.4-1.0$) ]{Phase transition shown in pair correlation} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
 \label{fig:correlation}
 \end{figure}
 
@@ -462,6 +477,7 @@ For liquid argon the pair correlation function is simply oscillating indicating 
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
+\newpage
 \newpage
 
 \renewcommand{\refname}{\spacedlowsmallcaps{References}} % For modifying the bibliography heading
