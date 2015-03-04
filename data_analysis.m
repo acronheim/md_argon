@@ -90,8 +90,8 @@ for i = 1:N
     %error_E_kin_squared(i) = std(E_kin_squared_block)/sqrt(N_blocks);
     
     %% specific heat
-    fluctuation_E_kin_squared(i) = mean((E_kin(:,i)-mean(E_kin(:,i))).^2);
-    specificheat(i) = -1/(fluctuation_E_kin_squared(i)/(kinenergy(i))^2 - 2/(3*N_part));
+    fluctuation_E_kin_squared(i) = std(N_part*E_kin(:,i))^2;
+    specificheat(i) = -1/(fluctuation_E_kin_squared(i)/(N_part*kinenergy(i))^2 - 2/(3*N_part));
     
 end
 

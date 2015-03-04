@@ -33,22 +33,42 @@ contains
 	end subroutine
 
 
-	subroutine calc_specific_heat(end_of_routine,N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step)
+	subroutine calc_specific_heat(N_part, step, kin_energy_vector, sum_kin_energy)
+		integer, intent(in) :: N_part, step
+		real(8), intent(in), dimension(1:step) :: kin_energy_vector	
+		real(8) :: specific_heat, kin_average, kin_average_sqr
+		integer :: i
+		real(8), intent(out) :: sum_kin_energy
 
-		logical, intent(in) :: end_of_routine
-		real(8), intent(in) :: kin_energy
-		real(8), intent(out) :: sum_kin_energy, sum_kin_energy_sqr
-		integer, intent(in) :: N_part, step	
-		real(8) :: specific_heat
 
-		sum_kin_energy_sqr = sum_kin_energy_sqr +  kin_energy**2
-		sum_kin_energy = sum_kin_energy + kin_energy
 
-		if (end_of_routine .eqv. .true.) then
-			specific_heat = ((2d0/(3d0*N_part)) - (((sum_kin_energy_sqr * step) - sum_kin_energy**2) / (sum_kin_energy**2)))**(-1)
+		
+		kin_average = 0d0
+		kin_average_sqr = 0d0
 
-			print *, "The specific heat is ", specific_heat
-		end if		
+		do i=1,step
+			kin_average = kin_average + kin_energy_vector(i)						
+		end do 
+		
+		sum_kin_energy = kin_average
+		kin_average = kin_average/step
+
+
+		do i=1,step
+			kin_average_sqr = kin_average_sqr + (kin_energy_vector(i) - kin_average)**2
+		end do
+
+		kin_average_sqr = kin_average_sqr/step
+
+
+		specific_heat = ((2d0/(3d0*N_part)) - ((kin_average_sqr) / (kin_average))**2 )**(-1)
+
+
+		open (unit=7,file="specific_heat.dat",action="write")
+
+		write (7,"(4F18.6)")  specific_heat
+	
+		print *, "The specific heat is ", specific_heat		
 	end subroutine
 
 

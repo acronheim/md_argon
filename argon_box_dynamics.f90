@@ -31,6 +31,7 @@ contains
 			
 		do n = 1,N_part 	
 			F = 0
+			
 			do i = 	1,N_part !integrate over all particles inside box except i = n					
 				do j = -1, 1 
 				do k = -1, 1 !periodic boundary condition
@@ -47,6 +48,7 @@ contains
 								if (n > i) then	
 									pot_energy = pot_energy + 4*e*((s/r)**12-(s/r)**6)
 									virial =  virial + dot_product(r_vec, dF) 
+									!print *, "Fij", e*(48*s**12/r**14 - 24*s**6/r**8), "r", r
 								end if	
 							end if
 						end if
@@ -63,12 +65,14 @@ contains
 				end do 
 				end do 
 				end do
-			end do		
+			end do	
+		
 			vel(:,n) = vel(:,n) + F/m*time_step/2 ! velocity verlet method -> factor 1/2 !
 			if (calc_quant .eqv. .true.) then	
 				sum_v_2 = sum_V_2 + dot_product(vel(:,n),vel(:,n))
 			end if
 		end do	
+		!print *, "virial", virial
 		kin_energy = m/2*sum_v_2	
 		
 	end subroutine
