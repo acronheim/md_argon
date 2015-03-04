@@ -20,7 +20,7 @@ program argon_box
 	
 
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50, equilibration_steps = 200
-	real(8), parameter :: dt = 0.004_8, T_initial = 5d-1, rho = 1.2_8, t_stop = 10d0
+	real(8), parameter :: dt = 0.004_8, T_initial = 1d0, rho = 0.7_8, t_stop = 120d0
 	
 	integer, parameter :: N_cell = N_cell_dim**3, N_part = N_cell*4
 	real(8), parameter :: L_side = (N_part/rho)**(1._8/3) 
@@ -35,7 +35,9 @@ program argon_box
 	integer :: step = 0 
 	real(8) :: time = 0, kin_energy, pot_energy, virial 
 	real(8) :: Pressure, Temperature, tot_energy
-	real(8) :: sum_kin_energy_sqr = 0, sum_kin_energy = 0, sum_virial = 0, sum_potential_energy = 0
+	real(8) :: sum_kin_energy = 0, sum_virial = 0, sum_potential_energy = 0
+
+	real(8), dimension(1:(int(t_stop/dt)-equilibration_steps+1)) :: kin_energy_vector
 
 	
 	! Create initial state
@@ -70,29 +72,34 @@ program argon_box
 		kin_energy = kin_energy/N_part
 
 		!call plot_points(pos)	
-		print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, &
-					& "T=", Temperature, "P=", Pressure
+		!print *, step,  "t=", time, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, &
+		!			& "T=", Temperature, "P=", Pressure
 		!print *, histogram_vector
 		
+		if (mod(step,25) == 0) then
+			print *, "K=", kin_energy, "U=", pot_energy, "virial=", virial, "T=", Temperature, "P=", Pressure
+		end if
+		
 		if (equilibration_steps < step) then
+			kin_energy_vector(step - equilibration_steps) = kin_energy
 			tot_histogram_vector = tot_histogram_vector + histogram_vector
 			sum_virial = sum_virial + virial
 			sum_potential_energy = sum_potential_energy + pot_energy
 			! variables sum_kin_energy and sum_kin_energy_sqr calculated in subroutine calc_specific_heat
-			call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step - equilibration_steps)
+			! call calc_specific_heat(.false., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step - equilibration_steps)
 		end if
 		call write_energy_file(kin_energy, pot_energy, virial, time, step)
 	end do		
 	!call plot_end	
 
 	! results
+	call calc_specific_heat(N_part, step - equilibration_steps, kin_energy_vector, sum_kin_energy)	
 	pot_energy = sum_potential_energy/(step - equilibration_steps)
 	kin_energy = sum_kin_energy/(step - equilibration_steps)
 	tot_energy = kin_energy + pot_energy
 	virial = sum_virial/(step - equilibration_steps)
 	Temperature = 2*kin_energy*N_part/(3* (N_part-1) *Kb)	!Center of mass degrees of freedom substracted..	
 	Pressure = 1 + 1/(3*Kb*Temperature*N_part)* virial !P/(Kb T rho) + TODO: correction cuttoff							
-	print *, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, "T=", Temperature, "P=", Pressure
-	call calc_specific_heat(.true., N_part, kin_energy, sum_kin_energy, sum_kin_energy_sqr, step - equilibration_steps)
+	!print *, "H=", tot_energy, "K=", kin_energy, "U=", pot_energy, "virial=", virial, "T=", Temperature, "P=", Pressure
 	call write_histogram_file(tot_histogram_vector, hist_num_intervals, N_part, step - equilibration_steps)
 end program

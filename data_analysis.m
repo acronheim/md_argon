@@ -51,7 +51,7 @@ for i = 1:N
     potenergy(i) = mean(E_pot(measurement_interval, i));
     totenergy(i) = kinenergy(i) + potenergy(i);
     temperature(i) = 2*N_part/(3*(N_part-1)*Kb)*kinenergy(i);
-    compressure(i) = 1 + 1/(3*Kb*Temperature(i)*N_part)* mean(virial(measurement_interval, i));
+    compressure(i) = 1 + 1/(3*Kb*temperature(i)*N_part)* mean(virial(measurement_interval, i));
     
     %% data blocking
     for j = 1:N_blocks
