@@ -34,7 +34,7 @@ filenames = {
 N = length(filenames);
 N_part = 864;
 N_equilibriation = 200;
-datablock_size = 100;
+datablock_size = 200;
 Kb = 1;
 
 
@@ -78,57 +78,59 @@ for i = 1:N
     
 %% data blocking
     for j = 1:N_blocks
-        block_interval = (N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size)        
-        E_kin_block(j) = mean( E_kin(block_interval,i));
-        E_pot_block(j) = mean( E_pot((block_interval,i));
+        block_interval = (N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size);       
+        E_kin_block(j) = mean(E_kin(block_interval,i));
+        E_pot_block(j) = mean(E_pot(block_interval,i));
         E_tot_block(j) = E_pot_block(j) + E_kin_block(j);
-        temperature_block(j) = mean(2*N_part/(3*(N_part-1)*Kb)*E_kin(block_interval,i));
-        compressure(i) = mean(1 + 1/(3*Kb*temperature_block(j)*N_part)* mean(virial(block_interval, i)));
+        temperature_block(j) = mean( 2*N_part/(3*(N_part-1)*Kb) * E_kin(block_interval,i));
+        compressure_block(j) = 1 + 1/(3*Kb* temperature_block(j) *N_part) * mean(virial(block_interval, i));
+        specificheat_block(j) = (-1/( std(E_kin(block_interval,i))^2 / (mean(E_kin(block_interval,i)))^2 - 2/(3*N_part)))/N_part;
     end    
     error_E_kin(i) = std(E_kin_block);
     error_E_pot(i) = std(E_pot_block);
     error_E_tot(i) = std(E_tot_block);
     error_temperature(i) = std(temperature_block);
-    error_compressure(i) = std(compressure);
+    error_compressure(i) = std(compressure_block);
+    error_specificheat(i) = std(specificheat_block);
     
 end
 
 %% plotting
 
-figure
-hold on
-plot(error_E_kin)
-plot(error_E_pot)
-plot(error_E_tot)
-plot(error_temperature)
-plot(error_compressure)
-title('error estimation energy')
-
-figure % constant density
-hold on
-selected_indices = density == 0.88;
-plot(temperature(selected_indices), compressure(selected_indices))
-selected_indices = density == 0.80;
-plot(temperature(selected_indices), compressure(selected_indices))
-selected_indices = density == 0.70;
-plot(temperature(selected_indices), compressure(selected_indices))
-title('P(T)')
-xlabel('Temperature')
-ylabel('Compressibility factor')
-
-figure % constant temperature
-selected_indices = T_init == 1;
-plot(density(selected_indices), compressure(selected_indices))
-title('P(rho), T =~ 1.0')
-xlabel('density')
-ylabel('Compressibility factor')
-
-figure %specific heat
-selected_indices = density == 0.80;
-plot(temperature(selected_indices), specificheat(selected_indices))
-title('specificheat, rho =~ 0.88')
-xlabel('Temperature')
-ylabel('Compressibility factor')
+% figure
+% hold on
+% plot(error_E_kin)
+% plot(error_E_pot)
+% plot(error_E_tot)
+% plot(error_temperature)
+% plot(error_compressure)
+% title('error estimation energy')
+% 
+% figure % constant density
+% hold on
+% selected_indices = density == 0.88;
+% plot(temperature(selected_indices), compressure(selected_indices))
+% selected_indices = density == 0.80;
+% plot(temperature(selected_indices), compressure(selected_indices))
+% selected_indices = density == 0.70;
+% plot(temperature(selected_indices), compressure(selected_indices))
+% title('P(T)')
+% xlabel('Temperature')
+% ylabel('Compressibility factor')
+% 
+% figure % constant temperature
+% selected_indices = T_init == 1;
+% plot(density(selected_indices), compressure(selected_indices))
+% title('P(rho), T =~ 1.0')
+% xlabel('density')
+% ylabel('Compressibility factor')
+% 
+% figure %specific heat
+% selected_indices = density == 0.80;
+% plot(temperature(selected_indices), specificheat(selected_indices))
+% title('specificheat, rho =~ 0.88')
+% xlabel('Temperature')
+% ylabel('Compressibility factor')
 
 
 %%
