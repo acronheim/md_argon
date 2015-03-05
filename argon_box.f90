@@ -17,8 +17,6 @@ program argon_box
 	use argon_box_results
 	!use md_plot
 	implicit none
-	
-
 
 	integer, parameter :: N_cell_dim = 6, velocity_rescale_steps = 50, equilibration_steps = 200
 	real(8), parameter :: dt = 0.004_8, T_initial = 3.0_8, rho = 0.30_8, t_stop = 10d0
@@ -80,7 +78,6 @@ program argon_box
 		if (mod(step,25) == 0) then
 			print *, "K=", kin_energy, "U=", pot_energy, "virial=", virial, "T=", Temperature, "P=", Pressure
 		end if
-		
 		if (equilibration_steps < step) then
 			kin_energy_vector(step - equilibration_steps) = kin_energy
 			tot_histogram_vector = tot_histogram_vector + histogram_vector

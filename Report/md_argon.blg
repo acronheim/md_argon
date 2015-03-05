@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2014/dev)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: md_argon.aux
+The style file: unsrt.bst
+Database file #1: sample.bib.bib
+Warning--empty journal in Glosser:2015iccp
+Warning--empty journal in Thijssen:2013cp
+You've used 5 entries,
+            1791 wiz_defined-function locations,
+            478 strings with 4085 characters,
+and the built_in function-call counts, 838 in all, are:
+= -- 73
+> -- 20
+< -- 0
++ -- 10
+- -- 5
+* -- 40
+:= -- 148
+add.period$ -- 15
+call.type$ -- 5
+change.case$ -- 5
+chr.to.int$ -- 0
+cite$ -- 7
+duplicate$ -- 42
+empty$ -- 91
+format.name$ -- 5
+if$ -- 180
+int.to.chr$ -- 0
+int.to.str$ -- 5
+missing$ -- 5
+newline$ -- 28
+num.names$ -- 5
+pop$ -- 13
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 16
+stack$ -- 0
+substring$ -- 48
+swap$ -- 3
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 7
+width$ -- 6
+write$ -- 53
+(There were 2 warnings)
