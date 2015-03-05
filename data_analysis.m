@@ -34,10 +34,7 @@ filenames = {
 N = length(filenames);
 N_part = 864;
 N_equilibriation = 200;
-
-
 datablock_size = 100;
-
 Kb = 1;
 
 
@@ -65,6 +62,7 @@ for i = 1:N
     totenergy(i) = kinenergy(i) + potenergy(i);
     temperature(i) = 2*N_part/(3*(N_part-1)*Kb)*kinenergy(i);
     compressure(i) = 1 + 1/(3*Kb*temperature(i)*N_part)* mean(virial(measurement_interval, i));
+    specificheat(i) = (-1/( std(E_kin(measurement_interval,i))^2 / (kinenergy(i))^2 - 2/(3*N_part)))/N_part;
     
 %% time correlation length
     input = E_pot(measurement_interval,i);
@@ -76,22 +74,22 @@ for i = 1:N
     timecorrelation = xcorr(input - mean(input));
     zero_timecorrelation = length(input);
     tau_kin(i) = 1/2*sum(timecorrelation/timecorrelation(zero_timecorrelation));
+
     
 %% data blocking
     for j = 1:N_blocks
-        E_kin_block(j) = mean( E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
-        E_pot_block(j) = mean( E_pot((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i));
-        %E_kin_squared_block(j) = mean( (E_kin((N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size),i)).^2);
-    end 
-    E_tot_block = E_pot_block + E_kin_block;
+        block_interval = (N_equilibriation+1+(j-1)*datablock_size):1:(N_equilibriation+1+j*datablock_size)        
+        E_kin_block(j) = mean( E_kin(block_interval,i));
+        E_pot_block(j) = mean( E_pot((block_interval,i));
+        E_tot_block(j) = E_pot_block(j) + E_kin_block(j);
+        temperature_block(j) = mean(2*N_part/(3*(N_part-1)*Kb)*E_kin(block_interval,i));
+        compressure(i) = mean(1 + 1/(3*Kb*temperature_block(j)*N_part)* mean(virial(block_interval, i)));
+    end    
     error_E_kin(i) = std(E_kin_block);
     error_E_pot(i) = std(E_pot_block);
     error_E_tot(i) = std(E_tot_block);
-    %error_E_kin_squared(i) = std(E_kin_squared_block)/sqrt(N_blocks);
-    
-    %% specific heat
-    fluctuation_E_kin_squared(i) = std(N_part*E_kin(:,i))^2;
-    specificheat(i) = -1/(fluctuation_E_kin_squared(i)/(N_part*kinenergy(i))^2 - 2/(3*N_part));
+    error_temperature(i) = std(temperature_block);
+    error_compressure(i) = std(compressure);
     
 end
 
@@ -102,6 +100,8 @@ hold on
 plot(error_E_kin)
 plot(error_E_pot)
 plot(error_E_tot)
+plot(error_temperature)
+plot(error_compressure)
 title('error estimation energy')
 
 figure % constant density
@@ -133,25 +133,25 @@ ylabel('Compressibility factor')
 
 %%
 
-for i = 1:15
-figure %energy fluctuations
-hold on
-plot(step(:,i), E_kin(:,i), '-r')
-plot(step(:,i), E_pot(:,i) + E_kin(:,i), '-k')
-plot(step(:,i), E_pot(:,i), '-b')
-
-title(['Energy per particle, \rho = ', num2str(density(i)), ', T = ', num2str(T_init(i))], 'fontsize', 18)
-xlabel('Timestep', 'fontsize', 16)
-ylabel('Energy (\epsilon)', 'fontsize', 16)
-legend('Kinetic energy', 'Total energy', 'Potential energy')
-set(gca,'fontsize',14)
-axis([0, 2501, -8, 4])
-end
+% for i = 1:15
+% figure %energy fluctuations
+% hold on
+% plot(step(:,i), E_kin(:,i), '-r')
+% plot(step(:,i), E_pot(:,i) + E_kin(:,i), '-k')
+% plot(step(:,i), E_pot(:,i), '-b')
+% 
+% title(['Energy per particle, \rho = ', num2str(density(i)), ', T = ', num2str(T_init(i))], 'fontsize', 18)
+% xlabel('Timestep', 'fontsize', 16)
+% ylabel('Energy (\epsilon)', 'fontsize', 16)
+% legend('Kinetic energy', 'Total energy', 'Potential energy')
+% set(gca,'fontsize',14)
+% axis([0, 2501, -8, 4])
+% end
 
 
 %%
-figure
-hold on 
-plot(tau_kin)
-plot(tau_pot)
-title('correlation time')
+% figure
+% hold on 
+% plot(tau_kin)
+% plot(tau_pot)
+% title('correlation time')
